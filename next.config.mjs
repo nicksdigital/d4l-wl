@@ -14,6 +14,24 @@ const nextConfig = {
     turbo: true,
   },
   
+  // Configure image domains for Next.js Image
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'd4lcdn.tor1.digitaloceanspaces.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd4lcdn.tor1.cdn.digitaloceanspaces.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  
   // Optimize webpack configuration (used when not using turbo)
   webpack: (config, { dev, isServer }) => {
     // Conditionally apply optimizations only in development
