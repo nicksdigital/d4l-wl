@@ -167,9 +167,10 @@ export async function POST(request: NextRequest) {
     // Get request body
     const body = await request.json();
     // @ts-ignore
-    const { address, amount, proof } = body;
+    const { address, proof } = body;
+    const claimAmount = body.amount;
 
-    if (!address || !amount || !proof) {
+    if (!address || !claimAmount || !proof) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
@@ -214,7 +215,7 @@ export async function POST(request: NextRequest) {
     const currentRoot = await contract.getRoot();
 
     // Verify the proof
-    const isValid = await contract.verifyProof(proof, address, amount);
+    const isValid = await contract.verifyProof(proof, address, claimAmount);
     if (!isValid) {
       return NextResponse.json(
         { error: 'Invalid proof' },
@@ -271,9 +272,8 @@ export async function POST(request: NextRequest) {
     const gasPrice = feeData.gasPrice;
 
     // Get gas limit and calculate cost
-    // @ts-ignore
-    const amount = ethersLib.parseUnits('1', 'ether');
-    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, amount, proof);
+    const tokenAmount = ethersLib.parseUnits('1', 'ether');
+    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, tokenAmount, proof);
     const gasCost = Number(gasPrice) * Number(gasLimit);
 
     // Get signer address and balance
@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Execute claim
-    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, amount, proof);
+    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, tokenAmount, proof);
     const receipt = await tx.wait();
 
     return NextResponse.json({
