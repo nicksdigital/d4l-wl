@@ -65,6 +65,20 @@ export function useWeb3() {
           });
         } catch (error) {
           console.error(`Error reading ${functionName}:`, error);
+          // If a specific function is missing on the chain (different from the ABI), we can handle it gracefully
+          if (
+            error.message?.includes("Function") && 
+            error.message?.includes("not found on ABI") ||
+            error.message?.includes("Position") && 
+            error.message?.includes("is out of bounds")
+          ) {
+            // Return a default value depending on function name
+            if (functionName === "registrationDetails") {
+              return ["", "", 0]; // Default email, social, timestamp
+            } else if (functionName.startsWith("get") || functionName.startsWith("is") || functionName.startsWith("has")) {
+              return null; // Default for getter functions
+            }
+          }
           throw error;
         }
       },

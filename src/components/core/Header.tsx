@@ -5,9 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import WalletButton from "@/components/wallet/WalletButton";
 import { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 
 export default function Header() {
   const pathname = usePathname();
+  const { address, isConnected } = useAccount();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -27,16 +29,21 @@ export default function Header() {
     };
   }, []);
 
-  // Navigation links
-  const navLinks = [
-    { title: "Home", path: "/" },
-    { title: "Register", path: "/register" },
-    { title: "Token", path: "/token" },
-    { title: "Profile", path: "/profile" },
-    { title: "Claim", path: "/claim" },
-    { title: "Rewards", path: "/rewards" },
-    { title: "Whitepaper", path: "/whitepaper" },
-  ];
+  // Navigation links with dynamic profile path
+  const getNavLinks = () => {
+    const links = [
+      { title: "Home", path: "/" },
+      { title: "Register", path: "/register" },
+      { title: "Token", path: "/token" },
+      { title: "Profile", path: isConnected && address ? `/profile/${address}` : "/profile" },
+      { title: "Claim", path: "/claim" },
+      { title: "Rewards", path: "/rewards" },
+      { title: "Whitepaper", path: "/whitepaper" },
+    ];
+    return links;
+  };
+  
+  const navLinks = getNavLinks();
 
   return (
     <header 

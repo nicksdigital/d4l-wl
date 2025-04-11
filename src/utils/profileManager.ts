@@ -256,29 +256,54 @@ export async function executeGaslessTransaction(
 /**
  * Helper function to create a signature for gasless transactions
  */
+// Define specific interfaces for the different function data types
+export interface CreateProfileData {
+  username: string;
+  email: string;
+  socialHandle: string;
+}
+
+export interface UpdateProfileData {
+  username: string;
+  email: string;
+  socialHandle: string;
+}
+
+export interface AddUserDataInput {
+  dataType: string;
+  data: string;
+}
+
+// Union type for all possible function data types
+export type FunctionDataType = CreateProfileData | UpdateProfileData | AddUserDataInput;
+
 export async function createSignature(
   signer: ethers.Signer,
   functionName: string,
-  functionData: any
+  functionData: FunctionDataType
 ): Promise<{ messageHash: string; signature: string }> {
   try {
     // Encode the function data based on the function name
     let encodedData: string;
     
-    if (functionName === 'createProfile') {
-      const { username, email, socialHandle } = functionData;
-      encodedData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['string', 'string', 'string'],
-        [username, email, socialHandle]
-      );
-    } else if (functionName === 'updateProfile') {
-      const { username, email, socialHandle } = functionData;
+    if (functionName === 'createProfile' || functionName === 'updateProfile') {
+      // Type guard to ensure we're working with the correct data type
+      if (!('username' in functionData) || !('email' in functionData) || !('socialHandle' in functionData)) {
+        throw new Error(`Invalid data for ${functionName}`);
+      }
+      
+      const { username, email, socialHandle } = functionData as CreateProfileData | UpdateProfileData;
       encodedData = ethers.AbiCoder.defaultAbiCoder().encode(
         ['string', 'string', 'string'],
         [username, email, socialHandle]
       );
     } else if (functionName === 'addUserData') {
-      const { dataType, data } = functionData;
+      // Type guard for AddUserDataInput
+      if (!('dataType' in functionData) || !('data' in functionData)) {
+        throw new Error('Invalid data for addUserData');
+      }
+      
+      const { dataType, data } = functionData as AddUserDataInput;
       encodedData = ethers.AbiCoder.defaultAbiCoder().encode(
         ['string', 'string'],
         [dataType, data]

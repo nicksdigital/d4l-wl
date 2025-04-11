@@ -55,15 +55,72 @@ export default function ProfilePage() {
         // Get registration details if available
         let email = '';
         let social = '';
+        let registrationTimestamp = 0;
         
         try {
           if (web3.contracts.wishlistRegistry) {
-            const registrationDetails = await web3.contracts.wishlistRegistry.read("registrationDetails", [addressParam]);
-            email = registrationDetails.email || '';
-            social = registrationDetails.social || '';
+            // First check if user is registered
+            try {
+              const isRegistered = await web3.contracts.wishlistRegistry.read("isRegistered", [addressParam]);
+              
+              if (isRegistered) {
+                // Try to fetch registration details - this might not work if the contract doesn't actually support this function
+                try {
+                  const userEvents = await web3.publicClient?.getLogs({
+                    address: web3.contracts.wishlistRegistry.address,
+                    event: {
+                      anonymous: true,
+                      inputs: [
+                        { indexed: true, name: 'user', type: 'address' },
+                        { indexed: false, name: 'timestamp', type: 'uint256' },
+                        { indexed: false, name: 'email', type: 'string' },
+                        { indexed: false, name: 'social', type: 'string' }
+                      ],
+                      name: 'UserRegistered',
+                    },
+                    args: {
+                      user: addressParam as `0x${string}`,
+                    },
+                    fromBlock: 'earliest',
+                    toBlock: 'latest'
+                  });
+                  
+                  if (userEvents && userEvents.length > 0) {
+                    // Extract the most recent registration data
+                    const latestEvent = userEvents[userEvents.length - 1];
+                    if (latestEvent.args) {
+                      email = latestEvent.args.email || '';
+                      social = latestEvent.args.social || '';
+                      registrationTimestamp = Number(latestEvent.args.timestamp) || 0;
+                    }
+                  }
+                } catch (detailsError) {
+                  console.warn("Could not get registration details from events:", detailsError);
+                  // Fallback to direct function call if available
+                  try {
+                    const details = await web3.contracts.wishlistRegistry.read("registrationDetails", [addressParam]);
+                    
+                    // The response format depends on the ABI structure
+                    if (Array.isArray(details)) {
+                      // If response is an array, destructure it based on the function output order
+                      [email, social, registrationTimestamp] = details;
+                    } else if (typeof details === 'object') {
+                      // If response is an object with named properties
+                      email = details.email || '';
+                      social = details.social || '';
+                      registrationTimestamp = details.timestamp || 0;
+                    }
+                  } catch (fnError) {
+                    console.warn("Could not get registration details from direct function call:", fnError);
+                  }
+                }
+              }
+            } catch (isRegisteredError) {
+              console.warn("Could not check if user is registered:", isRegisteredError);
+            }
           }
         } catch (err) {
-          console.error("Error fetching registration details:", err);
+          console.error("Error in registration details flow:", err);
         }
         
         setProfileData({
