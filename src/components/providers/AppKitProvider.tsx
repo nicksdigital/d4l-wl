@@ -61,21 +61,37 @@ interface AppKitProviderProps {
   cookies?: string | null;
 }
 
-// Create a client component to prevent hydration issues
-export function AppKitProvider({ children, cookies }: AppKitProviderProps) {
-  // Prevent hydration issues by using useEffect to ensure client-side only setup
+// ClientOnly wrapper component to prevent hydration issues
+function ClientOnly({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
     setMounted(true);
   }, []);
+  
+  // Return null on first render to avoid SSR hydration issues
+  return mounted ? <>{children}</> : null;
+}
 
-  // Since we've set ssr: false in the wagmiAdapter config, we don't need to parse cookies
+// Create a client component to prevent hydration issues
+export function AppKitProvider({ children, cookies }: AppKitProviderProps) {
+  // Using double-layered approach to prevent state updates during hydration
+  // This completely eliminates the "Cannot update component while rendering" error
+  return (
+    <ClientOnly>
+      <WagmiProviderWrapper>
+        {children}
+      </WagmiProviderWrapper>
+    </ClientOnly>
+  );
+}
+
+// Separate component for WagmiProvider to avoid state updates during initial render
+function WagmiProviderWrapper({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>
-        {/* Only render children once mounted on client to prevent hydration issues */}
-        {mounted ? children : null}
+        {children}
       </QueryClientProvider>
     </WagmiProvider>
   );

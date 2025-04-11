@@ -66,7 +66,13 @@ export default function ProfilePage() {
               if (isRegistered) {
                 // Try to fetch registration details - this might not work if the contract doesn't actually support this function
                 try {
-                  const userEvents = await web3.publicClient?.getLogs({
+                  // Check if publicClient is available
+                  if (!web3.publicClient) {
+                    throw new Error("Public client not available");
+                  }
+                  
+                  // Try to fetch logs, but handle any errors by throwing to the catch block
+                  const userEvents = await web3.publicClient.getLogs({
                     address: web3.contracts.wishlistRegistry.address,
                     event: {
                       anonymous: true,

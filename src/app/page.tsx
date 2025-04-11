@@ -10,15 +10,33 @@ import { ArrowRightIcon, CheckCircleIcon, GlobeAltIcon, UserGroupIcon, CurrencyD
 
 // Page-specific caching behavior is configured in config.ts
 
+// ClientOnly wrapper component
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Return null on first render to avoid SSR hydration issues
+  return mounted ? <>{children}</> : null;
+}
+
+// Main Home component
 export default function Home() {
-  // Use state to track client-side rendering
-  const [isMounted, setIsMounted] = useState(false);
+  // Use a placeholder for the initial server render that doesn't use any web3 data
+  // This prevents any web3 calls during SSR, avoiding the hydration mismatch
+  return (
+    <ClientOnly>
+      <HomeContent />
+    </ClientOnly>
+  );
+}
+
+// Separate component for content that requires web3 data
+function HomeContent() {
   const { isConnected, contracts, chainId } = useWeb3();
   
-  // Set mounted state after component mounts
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
   // Use the cached data hook with content tagging for airdrop status
   const { data: airdropData, isLoading } = useCachedData(
     async () => {

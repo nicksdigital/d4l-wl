@@ -180,6 +180,8 @@ export function useWeb3() {
     isLoading,
     error,
     contracts,
+    publicClient, // Expose the publicClient for advanced operations
+    walletClient, // Expose the walletClient as well for completeness
     // Helper methods
     getAirdropStatus,
     getTotalMinted,
