@@ -22,10 +22,10 @@ interface RedisMultiExecResult {
 export const rateLimit = async (key: string, ip: string): Promise<RateLimitResult> => {
   try {
     const rateLimitKey = `rate-limit:${key}:${ip}`;
-    const result: RedisMultiExecResult = await redisClient.multi()
+    const result = await redisClient.multi()
       .get(rateLimitKey)
       .ttl(rateLimitKey)
-      .exec();
+      .exec() as unknown as RedisMultiExecResult;
 
     if (!result || Object.keys(result).length !== 2) {
       throw new Error('Invalid Redis multi-exec result');

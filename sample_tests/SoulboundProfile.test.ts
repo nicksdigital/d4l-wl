@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { SoulboundProfile, SocialModule } from "../typechain-types";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 describe("SoulboundProfile", function () {
   let soulboundProfile: SoulboundProfile;

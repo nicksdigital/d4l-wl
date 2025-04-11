@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { AirdropController, WishlistRegistry, SoulboundProfile, MockERC20 } from "../typechain-types";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 describe("AirdropController", function () {
   let airdropController: AirdropController;

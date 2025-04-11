@@ -222,7 +222,6 @@ export const db = {
           merkleRoot: row.merkle_root
         };
       },
-      // @ts-expect-error
       () => {
         // In-memory fallback
         return inMemoryStorage.airdropClaims[address.toLowerCase()] || null;
@@ -254,7 +253,6 @@ export const db = {
           merkleRoot: row.merkle_root
         }));
       },
-      // @ts-expect-error
       () => {
         // In-memory fallback
         return Object.values(inMemoryStorage.airdropClaims)

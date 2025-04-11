@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { WishlistRegistry, SoulboundProfile, AirdropController, MockERC20 } from "../typechain-types";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 describe("Social Media and Referral System", function () {
   let wishlistRegistry: WishlistRegistry;

@@ -2,7 +2,20 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['ipfs.io', 'gateway.ipfs.io'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gateway.ipfs.io',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   async headers() {
     return [

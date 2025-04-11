@@ -201,7 +201,9 @@ interface ClaimEvent {
   args: [string, string, string];
 }
 
-export async function FALLBACK(request: NextRequest) {
+// Use a recognized Next.js route handler name (e.g., a custom handler)
+// and export the FALLBACK function separately if needed elsewhere
+export async function POST(request: NextRequest) {
   try {
     // Rate limit the endpoint
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
