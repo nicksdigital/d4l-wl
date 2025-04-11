@@ -13,6 +13,11 @@ import { AirdropControllerABI } from '../../../../contracts/abi/AirdropControlle
 
 // GET endpoint to retrieve airdrop claim status from database
 export async function GET(request: NextRequest) {
+  return handleGetStatus(request);
+}
+
+// Internal function to handle GET requests
+async function handleGetStatus(request: NextRequest) {
   try {
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -59,8 +64,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST endpoint to store airdrop claim in database
-export async function POST_CLAIM(request: NextRequest) {
+// Function to handle airdrop claims
+async function handleClaimStorage(request: NextRequest) {
   try {
     // Get request body
     const body = await request.json();
@@ -137,8 +142,8 @@ export async function POST_CLAIM(request: NextRequest) {
   }
 }
 
-// PATCH endpoint to update airdrop claim status
-export async function PATCH_CLAIM(request: NextRequest) {
+// Function to handle airdrop status updates
+async function handleStatusUpdate(request: NextRequest) {
   try {
     // Get request body
     const body = await request.json();
@@ -201,9 +206,20 @@ interface ClaimEvent {
   args: [string, string, string];
 }
 
-// Use a recognized Next.js route handler name (e.g., a custom handler)
-// and export the FALLBACK function separately if needed elsewhere
+// Export POST handler for Route API
 export async function POST(request: NextRequest) {
+  // Router to determine which handler to use based on request params or body
+  const url = new URL(request.url);
+  const action = url.searchParams.get('action');
+  
+  // If action is 'store', use handleClaimStorage, otherwise use the default handler
+  if (action === 'store') {
+    return handleClaimStorage(request);
+  } else if (action === 'update') {
+    return handleStatusUpdate(request);
+  }
+  
+  // Default handler for claiming airdrops
   try {
     // Rate limit the endpoint
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
