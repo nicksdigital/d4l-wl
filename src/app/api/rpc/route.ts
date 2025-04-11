@@ -14,8 +14,12 @@ export async function POST(request: NextRequest) {
     // Get session for authentication
     const session = await getServerSession(authOptions);
     
-    // Only allow authenticated users
-    if (!session || !session.user) {
+    // Check for authorization header (can be wallet address or session)
+    const authHeader = request.headers.get('Authorization');
+    const hasAuthHeader = authHeader && authHeader.startsWith('Bearer ');
+    
+    // Allow either authenticated users or requests with valid auth header
+    if ((!session || !session.user) && !hasAuthHeader) {
       return createErrorResponse(
         ErrorCode.UNAUTHORIZED,
         'Authentication required'

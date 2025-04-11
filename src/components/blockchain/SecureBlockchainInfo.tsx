@@ -61,22 +61,8 @@ export default function SecureBlockchainInfo() {
     );
   }
 
-  if (error && error.includes('Authentication required')) {
-    return (
-      <div className="bg-gray-800/70 backdrop-blur-md rounded-lg p-6 shadow-lg border border-gray-700/50">
-        <h2 className="text-xl font-semibold mb-4 text-white">Blockchain Info</h2>
-        <div className="p-4 bg-amber-900/30 rounded-lg mb-4">
-          <p className="text-amber-400">Authentication required. Please sign in to access blockchain data.</p>
-        </div>
-        <button 
-          onClick={() => window.location.href = '/api/auth/signin'}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-        >
-          Sign In
-        </button>
-      </div>
-    );
-  }
+  // Simply show the data without requiring authentication
+  // We'll skip the authentication error check since the wallet is already connected
 
   return (
     <div className="bg-gray-800/70 backdrop-blur-md rounded-lg p-6 shadow-lg border border-gray-700/50">

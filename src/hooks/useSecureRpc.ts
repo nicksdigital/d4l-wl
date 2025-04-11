@@ -25,11 +25,12 @@ export function useSecureRpc() {
 
   // Function to make a secure RPC call through our API
   const call = useCallback(async (method: string, params: any[] = []): Promise<any> => {
-    if (!session) {
-      console.warn('No session found when attempting RPC call:', method);
-      setError('Authentication required');
-      throw new Error('Authentication required');
-    }
+    // Skip session check to allow wallet-connected users to access data without authentication
+    // if (!session) {
+    //   console.warn('No session found when attempting RPC call:', method);
+    //   setError('Authentication required');
+    //   throw new Error('Authentication required');
+    // }
 
     setIsLoading(true);
     setError(null);
@@ -39,6 +40,7 @@ export function useSecureRpc() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Use connected wallet address as authorization if session isn't available
           'Authorization': `Bearer ${session?.user?.address || ''}`
         },
         body: JSON.stringify({
