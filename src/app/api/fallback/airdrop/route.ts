@@ -9,7 +9,7 @@ import {
   isValidEthereumAddress,
   logApiError
 } from "@/utils/apiUtils";
-import { AirdropControllerABI } from '@/contracts/abi';
+import { AirdropControllerABI } from '../../../../contracts/abi/AirdropControllerABI';
 
 // GET endpoint to retrieve airdrop claim status from database
 export async function GET(request: NextRequest) {
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       txHash: claim.txHash
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     logApiError("/api/fallback/airdrop", error);
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       status: 'pending'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     logApiError("/api/fallback/airdrop", error);
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
@@ -177,7 +177,7 @@ export async function PATCH(request: NextRequest) {
       status
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     logApiError("/api/fallback/airdrop", error);
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
@@ -188,14 +188,60 @@ export async function PATCH(request: NextRequest) {
 }
 
 // Fallback airdrop endpoint
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { rateLimit } from '@/utils/rateLimit';
+
+interface ClaimEvent {
+  event: string;
+  args: [string, string, string];
+}
+
 export async function FALLBACK(request: NextRequest) {
   try {
-    const { address, amount, proof } = await request.json();
+    // Rate limit the endpoint
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const rateLimitResult = await rateLimit('fallback-airdrop', ip);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: rateLimitResult.message },
+        { status: 429 }
+      );
+    }
+    
+    // Authenticate the user
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Get request body
+    const body = await request.json();
+    const { address, amount, proof } = body;
 
     if (!address || !amount || !proof) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
+      );
+    }
+
+    // Verify the address is valid
+    if (!ethers.isAddress(address)) {
+      return NextResponse.json(
+        { error: "Invalid address format" },
+        { status: 400 }
+      );
+    }
+
+    // Verify the address matches the authenticated user
+    if (session.user?.address.toLowerCase() !== address.toLowerCase()) {
+      return NextResponse.json(
+        { error: "Address does not match authenticated user" },
+        { status: 403 }
       );
     }
 
@@ -212,6 +258,9 @@ export async function FALLBACK(request: NextRequest) {
 
     // Get the current timestamp
     const block = await provider.getBlock(blockNumber);
+    if (!block) {
+      throw new Error('Failed to get block information');
+    }
     const timestamp = block.timestamp;
 
     // Get the current root
@@ -257,26 +306,31 @@ export async function FALLBACK(request: NextRequest) {
     const signer = provider.getSigner();
 
     // Get the contract with the signer
-    const contractWithSigner = contract.connect(signer);
+    const contractWithSigner = contract.connect(await signer) as ethers.Contract & {
+      estimateGas: {
+        "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.BigNumber>
+      },
+      "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.ContractTransaction>
+    };
 
-    // Get the gas price
-    const gasPrice = await provider.getGasPrice();
+    // Get the gas price with null check
+    const feeData = await provider.getFeeData();
+    if (!feeData.gasPrice) {
+      throw new Error('Failed to get gas price');
+    }
+    const gasPrice = feeData.gasPrice;
 
-    // Get the gas limit
-    const gasLimit = await contractWithSigner.estimateGas.claim(
-      address,
-      amount,
-      proof
-    );
+    // Get gas limit and calculate cost
+    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, amount, proof);
+    const gasCost = gasPrice * gasLimit;
+    const gasCostNumber = Number(gasCost);
 
-    // Get the gas cost
-    const gasCost = gasPrice.mul(gasLimit);
-
-    // Get the balance
-    const balance = await provider.getBalance(signer.getAddress());
+    // Get signer address and balance
+    const signerAddress = await signer.getAddress();
+    const balance = await provider.getBalance(signerAddress);
 
     // Check if there is enough balance
-    if (balance.lt(gasCost)) {
+    if (BigInt(balance) < BigInt(gasCost)) {
       return NextResponse.json(
         { error: 'Insufficient balance' },
         { status: 400 }
@@ -284,27 +338,34 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Execute the claim
-    const tx = await contractWithSigner.claim(
-      address,
-      amount,
-      proof
-    );
+    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, amount, proof);
 
     // Wait for the transaction to be mined
     const receipt = await tx.wait();
+
+    // Process events with proper typing
+    const events = receipt.events?.filter(
+      (event: ClaimEvent) => event.event === 'Claim'
+    );
+    const claimedAddresses = events?.map((event: ClaimEvent) => event.args[0]);
 
     return NextResponse.json({
       success: true,
       txHash: tx.hash,
       gasUsed: receipt.gasUsed.toNumber(),
       gasPrice: gasPrice.toNumber(),
-      gasCost: gasCost.toNumber(),
+      gasCost: gasCostNumber,
       timestamp: receipt.timestamp
     });
-  } catch (error: any) {
-    console.error('Fallback airdrop error:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
     return NextResponse.json(
-      { error: 'Fallback airdrop failed' },
+      { error: 'Airdrop claim failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

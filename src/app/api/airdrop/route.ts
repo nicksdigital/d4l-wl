@@ -4,9 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { getContractAddresses } from "@/utils/contractUtils";
 import { ethers } from "ethers";
 import { AirdropControllerABI } from "@/contracts/abis";
+import { rateLimit } from '@/utils/rateLimit';
 
 // Rate limiting setup
-const rateLimit = {
+const rateLimitConfig = {
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
   message: "Too many requests, please try again later.",
@@ -21,7 +22,7 @@ const ipRequests = new Map<string, { count: number; resetTime: number }>();
 // Rate limiting middleware
 const applyRateLimit = (ip: string): { success: boolean; message?: string } => {
   const now = Date.now();
-  const resetTime = now + rateLimit.windowMs;
+  const resetTime = now + rateLimitConfig.windowMs;
   
   if (!ipRequests.has(ip)) {
     ipRequests.set(ip, { count: 1, resetTime });
@@ -37,10 +38,10 @@ const applyRateLimit = (ip: string): { success: boolean; message?: string } => {
   }
   
   // Check if limit exceeded
-  if (requestData.count >= rateLimit.max) {
+  if (requestData.count >= rateLimitConfig.max) {
     return { 
       success: false, 
-      message: rateLimit.message
+      message: rateLimitConfig.message
     };
   }
   
@@ -141,10 +142,9 @@ export async function GET(request: NextRequest) {
 // POST endpoint for claiming airdrops
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP for rate limiting
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const rateLimitResult = applyRateLimit(ip);
-    
+    // Rate limit the endpoint
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const rateLimitResult = await rateLimit('airdrop', ip);
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: rateLimitResult.message },
@@ -160,18 +160,18 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
     // Get request body
     const body = await request.json();
     const { address, amount, proof } = body;
-    
+
     if (!address || !amount || !proof) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
       );
     }
-    
+
     // Verify the address is valid
     if (!ethers.isAddress(address)) {
       return NextResponse.json(
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Verify the address matches the authenticated user
     if (session.user?.address.toLowerCase() !== address.toLowerCase()) {
       return NextResponse.json(
@@ -187,12 +187,11 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
-    
+
     // Connect to the contract
-    const provider = getProvider();
-    const addresses = getContractAddresses(84532); // Base Sepolia chain ID
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const contract = new ethers.Contract(
-      addresses.airdropController,
+      process.env.AIRDROP_CONTRACT_ADDRESS!,
       AirdropControllerABI,
       provider
     );
@@ -202,6 +201,9 @@ export async function POST(request: NextRequest) {
 
     // Get the current timestamp
     const block = await provider.getBlock(blockNumber);
+    if (!block) {
+      throw new Error('Failed to get block information');
+    }
     const timestamp = block.timestamp;
 
     // Get the current root
@@ -247,54 +249,54 @@ export async function POST(request: NextRequest) {
     const signer = provider.getSigner();
 
     // Get the contract with the signer
-    const contractWithSigner = contract.connect(signer);
+    const contractWithSigner = contract.connect(await signer) as ethers.Contract & {
+      estimateGas: {
+        "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.BigNumber>
+      },
+      "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.ContractTransactionResponse>
+    };
 
-    // Get the gas price
-    const gasPrice = await provider.getGasPrice();
+    // Get fee data (replaces getGasPrice)
+    const feeData = await provider.getFeeData();
+    if (!feeData.gasPrice) {
+      return NextResponse.json(
+        { error: 'Failed to get gas price data' },
+        { status: 500 }
+      );
+    }
+    const gasPrice = feeData.gasPrice;
 
-    // Get the gas limit
-    const gasLimit = await contractWithSigner.estimateGas.claim(
-      address,
-      amount,
-      proof
-    );
-
-    // Get the gas cost
+    // Get gas limit and calculate cost
+    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, amount, proof);
     const gasCost = gasPrice.mul(gasLimit);
 
-    // Get the balance
-    const balance = await provider.getBalance(signer.getAddress());
+    // Get signer address and balance
+    const signerAddress = (await signer).getAddress();
+    const balance = await provider.getBalance(signerAddress);
 
-    // Check if there is enough balance
+    // Check balance
     if (balance.lt(gasCost)) {
       return NextResponse.json(
-        { error: 'Insufficient balance' },
+        { error: 'Insufficient balance for gas' },
         { status: 400 }
       );
     }
 
-    // Execute the claim
-    const tx = await contractWithSigner.claim(
-      address,
-      amount,
-      proof
-    );
-
-    // Wait for the transaction to be mined
+    // Execute claim
+    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, amount, proof);
     const receipt = await tx.wait();
 
     return NextResponse.json({
       success: true,
       txHash: tx.hash,
-      gasUsed: receipt.gasUsed.toNumber(),
-      gasPrice: gasPrice.toNumber(),
-      gasCost: gasCost.toNumber(),
-      timestamp: receipt.timestamp
+      gasUsed: receipt?.gasUsed,
+      gasPrice: gasPrice,
+      gasCost: gasCost
     });
   } catch (error: any) {
-    console.error("API error:", error);
+    console.error('Airdrop error:', error);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { error: 'Airdrop failed' },
       { status: 500 }
     );
   }

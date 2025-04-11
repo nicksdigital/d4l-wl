@@ -9,6 +9,7 @@ import {
   ErrorCode, 
   logApiError
 } from "@/utils/apiUtils";
+import { rateLimit } from '@/utils/rateLimit';
 
 // Helper function to get provider and signer
 const getProviderAndSigner = () => {
@@ -28,7 +29,17 @@ const getProviderAndSigner = () => {
 // POST endpoint to process pending airdrop claims
 export async function POST(request: NextRequest) {
   try {
-    // Check API key for security
+    // Rate limit the endpoint
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const rateLimitResult = await rateLimit('batch-sync', ip);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: rateLimitResult.message },
+        { status: 429 }
+      );
+    }
+
+    // Authenticate the user
     const apiKey = request.headers.get('x-api-key');
     const adminApiKey = process.env.ADMIN_API_KEY;
     
