@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { ethers } from "ethers";
+import { NextRequest, NextResponse } from 'next/server';
+import { ethers } from 'ethers';
 import { db, AirdropClaim, ProfileData } from "@/utils/dbUtils";
 import { getContractAddresses } from "@/utils/contractUtils";
 import { AirdropControllerABI, SoulboundProfileABI } from "@/contracts/abis";

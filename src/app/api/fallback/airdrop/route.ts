@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { ethers } from "ethers";
+import { NextRequest, NextResponse } from 'next/server';
+import { ethers } from 'ethers';
 import { db, AirdropClaim } from "@/utils/dbUtils";
 import { 
   createSuccessResponse, 
@@ -9,6 +9,7 @@ import {
   isValidEthereumAddress,
   logApiError
 } from "@/utils/apiUtils";
+import { AirdropControllerABI } from '@/contracts/abi';
 
 // GET endpoint to retrieve airdrop claim status from database
 export async function GET(request: NextRequest) {
@@ -182,6 +183,129 @@ export async function PATCH(request: NextRequest) {
       ErrorCode.INTERNAL_ERROR,
       "Internal server error",
       process.env.NODE_ENV === "development" ? error.message : undefined
+    );
+  }
+}
+
+// Fallback airdrop endpoint
+export async function FALLBACK(request: NextRequest) {
+  try {
+    const { address, amount, proof } = await request.json();
+
+    if (!address || !amount || !proof) {
+      return NextResponse.json(
+        { error: 'Missing required parameters' },
+        { status: 400 }
+      );
+    }
+
+    // Connect to the contract
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const contract = new ethers.Contract(
+      process.env.AIRDROP_CONTRACT_ADDRESS!,
+      AirdropControllerABI,
+      provider
+    );
+
+    // Get the current block number
+    const blockNumber = await provider.getBlockNumber();
+
+    // Get the current timestamp
+    const block = await provider.getBlock(blockNumber);
+    const timestamp = block.timestamp;
+
+    // Get the current root
+    const currentRoot = await contract.getRoot();
+
+    // Verify the proof
+    const isValid = await contract.verifyProof(proof, address, amount);
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid proof' },
+        { status: 400 }
+      );
+    }
+
+    // Get the current batch
+    const currentBatch = await contract.getCurrentBatch();
+
+    // Get the batch start time
+    const batchStartTime = await contract.getBatchStartTime(currentBatch);
+
+    // Get the batch duration
+    const batchDuration = await contract.getBatchDuration();
+
+    // Check if the batch is still active
+    const batchEndTime = batchStartTime + batchDuration;
+    if (timestamp > batchEndTime) {
+      return NextResponse.json(
+        { error: 'Batch has ended' },
+        { status: 400 }
+      );
+    }
+
+    // Get the claim status
+    const claimed = await contract.hasClaimed(address);
+    if (claimed) {
+      return NextResponse.json(
+        { error: 'Address has already claimed' },
+        { status: 400 }
+      );
+    }
+
+    // Get the signer
+    const signer = provider.getSigner();
+
+    // Get the contract with the signer
+    const contractWithSigner = contract.connect(signer);
+
+    // Get the gas price
+    const gasPrice = await provider.getGasPrice();
+
+    // Get the gas limit
+    const gasLimit = await contractWithSigner.estimateGas.claim(
+      address,
+      amount,
+      proof
+    );
+
+    // Get the gas cost
+    const gasCost = gasPrice.mul(gasLimit);
+
+    // Get the balance
+    const balance = await provider.getBalance(signer.getAddress());
+
+    // Check if there is enough balance
+    if (balance.lt(gasCost)) {
+      return NextResponse.json(
+        { error: 'Insufficient balance' },
+        { status: 400 }
+      );
+    }
+
+    // Execute the claim
+    const tx = await contractWithSigner.claim(
+      address,
+      amount,
+      proof
+    );
+
+    // Wait for the transaction to be mined
+    const receipt = await tx.wait();
+
+    return NextResponse.json({
+      success: true,
+      txHash: tx.hash,
+      gasUsed: receipt.gasUsed.toNumber(),
+      gasPrice: gasPrice.toNumber(),
+      gasCost: gasCost.toNumber(),
+      timestamp: receipt.timestamp
+    });
+  } catch (error: any) {
+    console.error('Fallback airdrop error:', error);
+    return NextResponse.json(
+      { error: 'Fallback airdrop failed' },
+      { status: 500 }
     );
   }
 }
