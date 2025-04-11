@@ -246,7 +246,7 @@ describe("AirdropController", function () {
       // Try to claim with invalid signature
       await expect(
         airdropController.connect(user5).claimAirdrop(user5.address, invalidSignature)
-      ).to.be.reverted;
+      ).to.be.revertedWith("");
     });
 
     it("Should not claim airdrop twice", async function () {

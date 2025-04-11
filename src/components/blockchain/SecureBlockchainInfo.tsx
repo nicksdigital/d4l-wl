@@ -15,7 +15,9 @@ export default function SecureBlockchainInfo() {
   // Fetch data on mount and when wallet changes
   useEffect(() => {
     if (isConnected && address) {
-      fetchData();
+      fetchData().catch(err => {
+        console.error('Error in initial data fetch:', err);
+      });
     }
   }, [isConnected, address]);
 
@@ -26,10 +28,18 @@ export default function SecureBlockchainInfo() {
     setIsRefreshing(true);
     
     try {
-      // Get balance and block number in parallel
+      // Get balance and block number in parallel, with error handling for each
       const [balanceWei, currentBlock] = await Promise.all([
-        getBalance(address),
-        getBlockNumber()
+        getBalance(address).catch(error => {
+          console.error('Balance fetch error:', error);
+          // Return '0' if balance fetch fails
+          return '0';
+        }),
+        getBlockNumber().catch(error => {
+          console.error('Block number fetch error:', error);
+          // Return 0 if block number fetch fails
+          return 0;
+        })
       ]);
       
       // Convert balance from Wei to Ether
@@ -47,6 +57,23 @@ export default function SecureBlockchainInfo() {
       <div className="bg-gray-800/70 backdrop-blur-md rounded-lg p-6 shadow-lg border border-gray-700/50">
         <h2 className="text-xl font-semibold mb-4 text-white">Blockchain Info</h2>
         <p className="text-gray-300">Please connect your wallet to view blockchain information.</p>
+      </div>
+    );
+  }
+
+  if (error && error.includes('Authentication required')) {
+    return (
+      <div className="bg-gray-800/70 backdrop-blur-md rounded-lg p-6 shadow-lg border border-gray-700/50">
+        <h2 className="text-xl font-semibold mb-4 text-white">Blockchain Info</h2>
+        <div className="p-4 bg-amber-900/30 rounded-lg mb-4">
+          <p className="text-amber-400">Authentication required. Please sign in to access blockchain data.</p>
+        </div>
+        <button 
+          onClick={() => window.location.href = '/api/auth/signin'}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+        >
+          Sign In
+        </button>
       </div>
     );
   }

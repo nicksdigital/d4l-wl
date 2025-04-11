@@ -26,6 +26,7 @@ export function useSecureRpc() {
   // Function to make a secure RPC call through our API
   const call = useCallback(async (method: string, params: any[] = []): Promise<any> => {
     if (!session) {
+      console.warn('No session found when attempting RPC call:', method);
       setError('Authentication required');
       throw new Error('Authentication required');
     }
@@ -37,7 +38,8 @@ export function useSecureRpc() {
       const response = await fetch('/api/rpc', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.user?.address || ''}`
         },
         body: JSON.stringify({
           method,

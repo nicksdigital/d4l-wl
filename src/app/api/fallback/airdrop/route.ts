@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST endpoint to store airdrop claim in database
-export async function POST(request: NextRequest) {
+export async function POST_CLAIM(request: NextRequest) {
   try {
     // Get request body
     const body = await request.json();
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PATCH endpoint to update airdrop claim status
-export async function PATCH(request: NextRequest) {
+export async function PATCH_CLAIM(request: NextRequest) {
   try {
     // Get request body
     const body = await request.json();
@@ -309,10 +309,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the signer
-    const signer = provider.getSigner();
+    const signer = await provider.getSigner();
 
     // Get the contract with the signer
-    const contractWithSigner = contract.connect(signer);
+    const contractWithSigner = contract.connect(await signer);
 
     // Get the gas price with null check
     const feeData = await provider.getFeeData();
@@ -323,11 +323,13 @@ export async function POST(request: NextRequest) {
 
     // Get gas limit and calculate cost
     const amountBN = BigInt(amount);
-    const gasLimit = await contractWithSigner.estimateGas.claim(address, amountBN, proof);
+    
+    // Use the correct syntax for ethers v6 to estimate gas
+    const gasLimit = await contractWithSigner.claim.estimateGas(address, amountBN, proof);
     const gasCost = gasPrice * BigInt(gasLimit.toString());
 
     // Get signer address and balance
-    const signerAddress = await signer.getAddress();
+    const signerAddress = await (await signer).getAddress();
     const balance = await provider.getBalance(signerAddress);
 
     // Check if there is enough balance
@@ -340,6 +342,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Execute the claim
+    // Make sure to use the correct method call syntax for ethers v6
     const tx = await contractWithSigner.claim(address, amountBN, proof);
 
     // Wait for the transaction to be mined

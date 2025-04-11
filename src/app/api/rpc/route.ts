@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Use the private RPC URL from environment variables
-    const rpcUrl = process.env.BASE_SEPOLIA_RPC_URL;
+    const rpcUrl = process.env.BASE_SEPOLIA_RPC_URL || process.env.RPC_URL;
     
     if (!rpcUrl) {
       return createErrorResponse(
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
         'RPC URL not configured'
       );
     }
+
+    console.log(`Using RPC URL: ${rpcUrl.substring(0, 15)}...`); // Log partial URL for debugging
     
     // Create the JSON-RPC request
     const rpcRequest = {

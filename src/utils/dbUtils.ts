@@ -222,7 +222,7 @@ export const db = {
           merkleRoot: row.merkle_root
         };
       },
-      () => {
+      (): AirdropClaim | null => {
         // In-memory fallback
         return inMemoryStorage.airdropClaims[address.toLowerCase()] || null;
       }
