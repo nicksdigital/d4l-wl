@@ -341,7 +341,8 @@ export async function POST(request: NextRequest) {
     const amountBN = BigInt(amount);
     
     // Use the correct syntax for ethers v6 to estimate gas
-    const gasLimit = await contractWithSigner.claim.estimateGas(address, amountBN, proof);
+    // Handling contract.method missing on BaseContract type
+    const gasLimit = await (contractWithSigner as any).estimateGas.claim(address, amountBN, proof);
     const gasCost = gasPrice * BigInt(gasLimit.toString());
 
     // Get signer address and balance
@@ -359,7 +360,7 @@ export async function POST(request: NextRequest) {
 
     // Execute the claim
     // Make sure to use the correct method call syntax for ethers v6
-    const tx = await contractWithSigner.claim(address, amountBN, proof);
+    const tx = await (contractWithSigner as any).claim(address, amountBN, proof);
 
     // Wait for the transaction to be mined
     const receipt = await tx.wait();  // This should work with ethers v6

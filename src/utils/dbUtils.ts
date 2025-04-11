@@ -259,7 +259,14 @@ export const db = {
       },
       (): AirdropClaim | null => {
         // In-memory fallback
-        return inMemoryStorage.airdropClaims[address.toLowerCase()] || null;
+        const claim = inMemoryStorage.airdropClaims[address.toLowerCase()];
+        if (!claim) return null;
+        
+        // Ensure txHash is defined (convert optional to required)
+        return {
+          ...claim,
+          txHash: claim.txHash || null // Ensure txHash is never undefined
+        };
       }
     );
   },
