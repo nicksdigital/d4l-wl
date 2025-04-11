@@ -58,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, scrollToSection
   }, [currentSection, activeSection]);
 
   return (
-    <React.Fragment>
+    <Fragment>
       {/* Mobile navigation bar - visible only on small screens */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-white/10 px-2 py-2">
         <div className="flex justify-between items-center overflow-x-auto hide-scrollbar">
