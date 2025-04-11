@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
       "Internal server error",
-      process.env.NODE_ENV === "development" ? error.message : undefined
+      process.env.NODE_ENV === "development" ? (error as Error).message : undefined
     );
   }
 }
@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
     
     // Validate amount
     try {
-      const parsedAmount = ethers.utils.parseUnits(amount, 18); // Validate that amount is a valid number
+      // Using BigInt for validation instead of BigNumber
+      const parsedAmount = BigInt(amount); // Validate that amount is a valid number
       if (!parsedAmount) {
         throw new Error('Invalid amount format');
       }
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
       "Internal server error",
-      process.env.NODE_ENV === "development" ? error.message : undefined
+      process.env.NODE_ENV === "development" ? error instanceof Error ? error.message : String(error) : undefined
     );
   }
 }
@@ -233,7 +234,7 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Verify the address is valid
-    if (!ethers.utils.isAddress(address)) {
+    if (!ethers.isAddress(address)) {
       return NextResponse.json(
         { error: "Invalid address format" },
         { status: 400 }
@@ -249,7 +250,7 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Connect to the contract
-    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const contract = new ethers.Contract(
       process.env.AIRDROP_CONTRACT_ADDRESS!,
       AirdropControllerABI,
@@ -309,30 +310,27 @@ export async function FALLBACK(request: NextRequest) {
     const signer = provider.getSigner();
 
     // Get the contract with the signer
-    const contractWithSigner = contract.connect(await signer) as ethers.Contract & {
-      estimateGas: {
-        "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.BigNumber>
-      },
-      "claim(address,uint256,bytes32[])": (address: string, amount: ethers.BigNumberish, proof: string[]) => Promise<ethers.ContractTransaction>
-    };
+    const contractWithSigner = contract.connect(signer);
 
     // Get the gas price with null check
     const feeData = await provider.getFeeData();
     if (!feeData.gasPrice) {
       throw new Error('Failed to get gas price');
     }
-    const gasPrice = ethers.utils.parseUnits('10', 'gwei');
+    const gasPrice = BigInt(feeData.gasPrice.toString());
 
     // Get gas limit and calculate cost
-    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, ethers.utils.parseUnits(amount, 18), proof);
-    const gasCost = gasPrice.mul(gasLimit);
+    const amountBN = BigInt(amount);
+    const gasLimit = await contractWithSigner.estimateGas.claim(address, amountBN, proof);
+    const gasCost = gasPrice * BigInt(gasLimit.toString());
 
     // Get signer address and balance
     const signerAddress = await signer.getAddress();
     const balance = await provider.getBalance(signerAddress);
 
     // Check if there is enough balance
-    if (BigInt(balance) < BigInt(gasCost)) {
+    const balanceBigInt = BigInt(balance.toString());
+    if (balanceBigInt < gasCost) {
       return NextResponse.json(
         { error: 'Insufficient balance' },
         { status: 400 }
@@ -340,10 +338,10 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Execute the claim
-    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, ethers.utils.parseUnits(amount, 18), proof);
+    const tx = await contractWithSigner.claim(address, amountBN, proof);
 
     // Wait for the transaction to be mined
-    const receipt = await tx.wait();
+    const receipt = await tx.wait();  // This should work with ethers v6
 
     // Process events with proper typing
     const events = receipt.events?.filter(
@@ -354,9 +352,9 @@ export async function FALLBACK(request: NextRequest) {
     return NextResponse.json({
       success: true,
       txHash: receipt.transactionHash,
-      gasUsed: Number(receipt.gasUsed.toString()),
-      gasPrice: Number(gasPrice.toString()),
-      gasCost: Number(gasCost.toString()),
+      gasUsed: receipt.gasUsed.toString(),
+      gasPrice: gasPrice.toString(),
+      gasCost: gasCost.toString(),
       timestamp: receipt.timestamp
     });
   } catch (error: unknown) {
