@@ -237,21 +237,23 @@ export const db = {
         `;
         
         const result = await pool.query(query);
-        // @ts-ignore
-      return result.rows.map(row => ({
-        address: row.address,
-        amount: row.amount,
-        timestamp: row.timestamp,
-        txHash: row.tx_hash,
-        status: row.status,
-        merkleProof: JSON.parse(row.merkle_proof),
-        merkleRoot: row.merkle_root
-      }));
-    } else {
-      // In-memory fallback
-      return Object.values(inMemoryStorage.airdropClaims)
-        .filter(claim => claim.status === 'pending');
-    }
+        
+        return result.rows.map(row => ({
+          address: row.address,
+          amount: row.amount,
+          timestamp: row.timestamp,
+          txHash: row.tx_hash,
+          status: row.status,
+          merkleProof: JSON.parse(row.merkle_proof),
+          merkleRoot: row.merkle_root
+        }));
+      },
+      () => {
+        // In-memory fallback
+        return Object.values(inMemoryStorage.airdropClaims)
+          .filter(claim => claim.status === 'pending');
+      }
+    );
   },
   
   /**
