@@ -20,40 +20,40 @@ export const Introduction = () => {
       </div>
       
       {/* Executive Summary */}
-      <div className="relative mb-16 p-8 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
+      <div className="relative mb-12 p-6 sm:p-8 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-sm">
           Executive Summary
         </div>
-        <p className="text-xl leading-relaxed text-white/90 mt-4 mb-6">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90 mt-4 mb-6">
           D4L isn't some boring platform—it's the <span className="font-bold text-blue-300">beating heart of crypto</span>, cultivating a lifestyle built for those who live for wild bets, the enthusiasts who dream in code, and the investors chasing fat stacks. We're throwing advanced trading, gamified battles, token madness, prediction markets, social engagement and robust risk management into a comprehensive DeFi blender, creating an ecosystem that's equal parts adventurous and rock-solid.
         </p>
-        <p className="text-xl leading-relaxed text-white/90">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90">
           In a 2025 market where opportunities are ripening and clarity is emerging, D4L's the spark—delivering a secure DEX with the revolutionary <span className="font-semibold text-purple-300">HydraCurve</span> magic, a <span className="font-semibold text-yellow-300">BonkWars</span> arena for token community dominance, and prediction markets to flex your brain while you stack your bags.
         </p>
       </div>
 
       {/* Vision Section */}
-      <div className="relative mb-16 p-8 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
+      <div className="relative mb-12 p-6 sm:p-8 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-semibold text-sm">
           Our Vision
         </div>
-        <p className="text-xl leading-relaxed text-white/90 mt-4 mb-6">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90 mt-4 mb-6">
           D4L is more than a platform—it's a <span className="font-bold text-green-300">movement</span> designed to thrive in any market. We empower traders, token creators, liquidity providers, and governance participants with a secure, innovative, and engaging decentralized ecosystem.
         </p>
-        <p className="text-xl leading-relaxed text-white/90">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90">
           Whether you're chasing moonshots, building the next big meme coin, or seeking strategic opportunities, D4L is your gateway to the future of crypto. The "D4L token" is your key to this ecosystem: stake it, vote with it, and unlock exclusive benefits.
         </p>
       </div>
       
       {/* Market Opportunity */}
-      <div className="relative mb-16 p-8 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
+      <div className="relative mb-12 p-6 sm:p-8 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full text-white font-semibold text-sm">
           The 2025 Scene
         </div>
-        <p className="text-xl leading-relaxed text-white/90 mt-4 mb-6">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90 mt-4 mb-6">
           Meme coins like DOGE, SHIB, and PEPE once ignited the crypto frontier, rallying the crew to chase moonshots with unstoppable energy. By March 2025, the landscape transformed—not slowed, but sharpened. The market's ripe with potential as savvy traders pivot from fleeting hype to golden opportunities.
         </p>
-        <p className="text-xl leading-relaxed text-white/90 mb-8">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90 mb-6 sm:mb-8">
           Scams are fading into the rearview, replaced by a hunger for trust and value—wallets are guarded, yes, but ready to fuel what's real. DeFi's charging ahead, blazing trails with secure liquidity and vibrant communities that demand substance over noise.
         </p>
         
@@ -72,15 +72,15 @@ export const Introduction = () => {
       </div>
       
       {/* D4L's Approach with enhanced styling */}
-      <div className="relative mb-16 p-8 bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
+      <div className="relative mb-12 p-6 sm:p-8 bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full text-white font-semibold text-sm">
           D4L's Approach: Turning Chaos into Crypto Gold
         </div>
-        <p className="text-xl leading-relaxed text-white/90 mt-4 mb-8">
+        <p className="text-lg sm:text-xl leading-relaxed text-white/90 mt-4 mb-6 sm:mb-8">
           Enter D4L—built by trailblazers, for trailblazers, with a twist that hooks everyone. Our meme coin launchpad's scam-proof, locking in trust for creators and players alike. Our DEX, powered by HydraCurve, keeps trades slick and steady—30% capital efficiency isn't just talk, it's more cash in your hand. BonkWars and prediction markets turn the chaos into a game you can win. We're not just another token—we're a lifestyle, a system, a crew, a culture. Risk it for the rush, build it for the future, bank it for the win—D4L's the spark crypto's been missing in 2025.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
           {[
             {
               title: "HydraCurve AMM",

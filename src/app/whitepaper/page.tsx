@@ -70,7 +70,7 @@ export default function WhitepaperPage() {
           </div>
 
           {/* Main content */}
-          <div className="lg:w-3/4">
+          <div className="lg:w-3/4 pb-20 lg:pb-0"> {/* Added bottom padding for mobile */}
             <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/70 backdrop-blur-md rounded-lg shadow-xl overflow-hidden border border-white/10 relative">
               {/* Background elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

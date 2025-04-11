@@ -58,31 +58,55 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, scrollToSection
   }, [currentSection, activeSection]);
 
   return (
-    <div className="hidden lg:block sticky top-24 w-64 pr-8">
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-        <h3 className="text-xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          Contents
-        </h3>
-        <nav>
-          <ul className="space-y-2">
-            {sections.map((section) => (
-              <li key={section.id}>
-                <button
-                  onClick={() => scrollToSection(section.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition-all duration-200 ${
-                    currentSection === section.id
-                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white font-medium'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {section.label}
-                  {currentSection === section.id && (
-                    <span className="inline-block w-1.5 h-1.5 bg-blue-400 rounded-full ml-2 animate-pulse"></span>
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
+    <>
+      {/* Mobile navigation bar - visible only on small screens */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-white/10 px-2 py-2">
+        <div className="flex justify-between items-center overflow-x-auto hide-scrollbar">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => scrollToSection(section.id)}
+              className={`flex-shrink-0 px-3 py-2 text-xs rounded-lg transition-all duration-200 ${
+                currentSection === section.id
+                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white font-medium'
+                  : 'text-white/70'
+              }`}
+            >
+              {section.label}
+              {currentSection === section.id && (
+                <span className="inline-block w-1.5 h-1.5 bg-blue-400 rounded-full ml-1 animate-pulse"></span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Desktop sidebar - hidden on small screens */}
+      <div className="hidden lg:block sticky top-24 w-64 pr-8">
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+          <h3 className="text-xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+            Contents
+          </h3>
+          <nav>
+            <ul className="space-y-2">
+              {sections.map((section) => (
+                <li key={section.id}>
+                  <button
+                    onClick={() => scrollToSection(section.id)}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition-all duration-200 ${
+                      currentSection === section.id
+                        ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white font-medium'
+                        : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {section.label}
+                    {currentSection === section.id && (
+                      <span className="inline-block w-1.5 h-1.5 bg-blue-400 rounded-full ml-2 animate-pulse"></span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
           
           {/* Additional Resources */}
           <div className="mt-6 pt-4 border-t border-white/10">
