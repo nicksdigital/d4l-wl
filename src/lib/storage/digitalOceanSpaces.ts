@@ -1,7 +1,6 @@
-import AWS from 'aws-sdk';
-import { createReadStream } from 'fs';
-import { stat } from 'fs/promises';
+import axios from 'axios';
 import path from 'path';
+import process from 'process';
 
 // Configure S3 client for Digital Ocean Spaces
 // These values should be in your .env file
@@ -12,29 +11,7 @@ const spacesSecretKey = process.env.DO_SPACES_SECRET_KEY;
 const spacesUrl = process.env.DO_SPACES_URL || `https://${spacesBucket}.${spacesEndpoint}`;
 const spacesCdnUrl = process.env.DO_SPACES_CDN_URL || `https://${spacesBucket}.tor1.cdn.digitaloceanspaces.com`;
 
-// Initialize the S3 client
-const s3 = new AWS.S3({
-  endpoint: `https://${spacesEndpoint}`,
-  accessKeyId: spacesAccessKey,
-  secretAccessKey: spacesSecretKey,
-  region: 'us-east-1', // This is required but doesn't matter for DO Spaces
-  s3ForcePathStyle: false, // This is required for DO Spaces
-});
-
-/**
- * Interface for upload options
- */
-interface UploadOptions {
-  contentType?: string;
-  isPublic?: boolean;
-  folder?: string;
-  metadata?: Record<string, string>;
-  cacheControl?: string;
-}
-
-/**
- * Interface for uploaded file info
- */
+// Interface for uploaded file info
 interface UploadedFileInfo {
   key: string;
   size: number;
@@ -43,114 +20,147 @@ interface UploadedFileInfo {
   contentType: string;
 }
 
-/**
- * Generate a unique key for the file
- * @param fileName Original file name
- * @param folder Optional folder path
- */
+// Interface for upload options
+interface UploadOptions {
+  contentType?: string;
+  isPublic?: boolean;
+  folder?: string;
+  metadata?: Record<string, string>;
+  cacheControl?: string;
+}
+
+// Interface for list files response
+interface ListFilesResponse {
+  Key: string;
+  Size: number;
+  LastModified: string;
+  ETag: string;
+  StorageClass: string;
+}
+
+// Generate a unique key for the file
 const generateKey = (fileName: string, folder?: string): string => {
-  const timestamp = Date.now();
-  const extension = path.extname(fileName);
-  const baseName = path.basename(fileName, extension);
-  const normalizedBaseName = baseName
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-');
+  const timestamp = new Date().getTime();
+  const random = Math.random().toString(36).substring(2, 15);
+  const baseName = path.basename(fileName);
+  const ext = path.extname(fileName);
+  const name = path.basename(fileName, ext);
   
-  const key = `${normalizedBaseName}-${timestamp}${extension}`;
-  return folder ? `${folder}/${key}` : key;
+  return `${folder ? `${folder}/` : ''}${name}-${timestamp}-${random}${ext}`;
 };
 
-/**
- * Guess content type from file extension
- * @param filePath Path to the file
- */
-const guessContentType = (filePath: string): string => {
-  const extension = path.extname(filePath).toLowerCase();
-  
-  const contentTypeMap: Record<string, string> = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.pdf': 'application/pdf',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.xls': 'application/vnd.ms-excel',
-    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    '.ppt': 'application/vnd.ms-powerpoint',
-    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    '.mp4': 'video/mp4',
-    '.mp3': 'audio/mpeg',
-    '.txt': 'text/plain',
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.json': 'application/json',
-  };
-
-  return contentTypeMap[extension] || 'application/octet-stream';
+// Get CDN URL for a key
+const getCdnUrl = (key: string): string => {
+  return `${process.env.DO_SPACES_CDN_URL || ''}/${key}`;
 };
 
-/**
- * Upload a file to Digital Ocean Spaces
- * @param filePath Path to the file on disk
- * @param options Upload options
- */
+// Get direct Space URL for a key
+const getSpaceUrl = (key: string): string => {
+  return `${process.env.DO_SPACES_URL || ''}/${key}`;
+};
+
+// Upload a file via API
 export const uploadFile = async (
   filePath: string,
   options: UploadOptions = {}
 ): Promise<UploadedFileInfo> => {
+  const file = await fetch(filePath);
+  const data = await file.arrayBuffer();
+  const key = generateKey(filePath, options.folder);
+
   try {
-    // Get file stats
-    const fileStats = await stat(filePath);
-    
-    // Generate a unique key
-    const key = generateKey(path.basename(filePath), options.folder);
-    
-    // Determine content type
-    const contentType = options.contentType || guessContentType(filePath);
-    
-    // Default cache control
-    const cacheControl = options.cacheControl || 'public, max-age=31536000'; // 1 year by default
-    
-    // Upload parameters
-    const params: AWS.S3.PutObjectRequest = {
-      Bucket: spacesBucket,
-      Key: key,
-      Body: createReadStream(filePath),
-      ACL: options.isPublic !== false ? 'public-read' : 'private',
-      ContentType: contentType,
-      ContentLength: fileStats.size,
-      CacheControl: cacheControl,
-      Metadata: options.metadata,
-    };
-    
-    // Upload file
-    const result = await s3.upload(params).promise();
-    
-    // Return uploaded file info
+    const response = await fetch('/api/storage/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'upload',
+        key,
+        data: Array.from(new Uint8Array(data)),
+        options
+      })
+    });
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error('Upload failed');
+    }
+
     return {
-      key: result.Key,
-      size: fileStats.size,
-      url: `${spacesUrl}/${result.Key}`,
-      cdnUrl: `${spacesCdnUrl}/${result.Key}`,
-      contentType,
+      key,
+      size: data.byteLength,
+      url: getSpaceUrl(key),
+      cdnUrl: getCdnUrl(key),
+      contentType: options.contentType || 'application/octet-stream'
     };
   } catch (error) {
-    console.error('Error uploading file to DO Spaces:', error);
+    console.error('Error uploading file:', error);
     throw error;
   }
 };
 
-/**
- * Upload a buffer to Digital Ocean Spaces
- * @param buffer Buffer to upload
- * @param fileName Name for the file
- * @param options Upload options
- */
+// Delete a file via API
+export const deleteFile = async (key: string): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/storage/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'delete',
+        key
+      })
+    });
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    throw error;
+  }
+};
+
+// Check if a file exists via API
+export const fileExists = async (key: string): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/storage/exists', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'exists',
+        key
+      })
+    });
+
+    const result = await response.json();
+    return result.exists;
+  } catch (error) {
+    console.error('Error checking file existence:', error);
+    throw error;
+  }
+};
+
+// List files in a folder
+export const listFiles = async (prefix: string = '', maxKeys: number = 1000): Promise<ListFilesResponse[]> => {
+  try {
+    const response = await axios.get(`https://${spacesEndpoint}/${spacesBucket}?prefix=${prefix}&max-keys=${maxKeys}`, {
+      headers: {
+        'Authorization': `AWS ${spacesAccessKey}:${spacesSecretKey}`,
+      },
+    });
+    
+    return response.data.Contents || [];
+  } catch (error) {
+    console.error('Error listing files in DO Spaces:', error);
+    throw error;
+  }
+};
+
+// Upload a buffer to Digital Ocean Spaces
 export const uploadBuffer = async (
   buffer: Buffer,
   fileName: string,
@@ -161,32 +171,39 @@ export const uploadBuffer = async (
     const key = generateKey(fileName, options.folder);
     
     // Determine content type
-    const contentType = options.contentType || guessContentType(fileName);
+    const contentType = options.contentType || 'application/octet-stream';
     
     // Default cache control
     const cacheControl = options.cacheControl || 'public, max-age=31536000'; // 1 year by default
     
     // Upload parameters
-    const params: AWS.S3.PutObjectRequest = {
-      Bucket: spacesBucket,
-      Key: key,
-      Body: buffer,
-      ACL: options.isPublic !== false ? 'public-read' : 'private',
-      ContentType: contentType,
-      ContentLength: buffer.length,
-      CacheControl: cacheControl,
-      Metadata: options.metadata,
+    const headers = {
+      'Content-Type': contentType,
+      'Content-Length': buffer.length.toString(),
+      'Cache-Control': cacheControl,
     };
     
+    if (options.isPublic !== false) {
+      headers['x-amz-acl'] = 'public-read';
+    }
+    
+    if (options.metadata) {
+      Object.keys(options.metadata).forEach((key) => {
+        headers[`x-amz-meta-${key}`] = options.metadata[key];
+      });
+    }
+    
     // Upload buffer
-    const result = await s3.upload(params).promise();
+    const response = await axios.put(`https://${spacesEndpoint}/${spacesBucket}/${key}`, buffer, {
+      headers,
+    });
     
     // Return uploaded file info
     return {
-      key: result.Key,
+      key: response.data.Key,
       size: buffer.length,
-      url: `${spacesUrl}/${result.Key}`,
-      cdnUrl: `${spacesCdnUrl}/${result.Key}`,
+      url: `${spacesUrl}/${response.data.Key}`,
+      cdnUrl: `${spacesCdnUrl}/${response.data.Key}`,
       contentType,
     };
   } catch (error) {
@@ -195,117 +212,32 @@ export const uploadBuffer = async (
   }
 };
 
-/**
- * Delete a file from Digital Ocean Spaces
- * @param key Key of the file to delete
- */
-export const deleteFile = async (key: string): Promise<boolean> => {
-  try {
-    await s3.deleteObject({
-      Bucket: spacesBucket,
-      Key: key,
-    }).promise();
-    
-    return true;
-  } catch (error) {
-    console.error('Error deleting file from DO Spaces:', error);
-    throw error;
-  }
-};
-
-/**
- * List files in a folder
- * @param prefix Folder prefix
- * @param maxKeys Maximum number of keys to return
- */
-export const listFiles = async (prefix: string = '', maxKeys: number = 1000): Promise<AWS.S3.ObjectList> => {
-  try {
-    const response = await s3.listObjects({
-      Bucket: spacesBucket,
-      Prefix: prefix,
-      MaxKeys: maxKeys,
-    }).promise();
-    
-    return response.Contents || [];
-  } catch (error) {
-    console.error('Error listing files in DO Spaces:', error);
-    throw error;
-  }
-};
-
-/**
- * Get a signed URL for a private file
- * @param key Key of the file
- * @param expiresInSeconds URL expiration time in seconds
- */
+// Get a signed URL for a private file
 export const getSignedUrl = (key: string, expiresInSeconds: number = 3600): string => {
   try {
-    const params = {
-      Bucket: spacesBucket,
-      Key: key,
-      Expires: expiresInSeconds,
-    };
+    const expires = Math.floor(Date.now() / 1000) + expiresInSeconds;
+    const signature = Buffer.from(`GET\n\n\n${expires}\n/${spacesBucket}/${key}`).toString('base64');
+    const encodedSignature = encodeURIComponent(signature);
     
-    return s3.getSignedUrl('getObject', params);
+    return `https://${spacesEndpoint}/${spacesBucket}/${key}?AWSAccessKeyId=${spacesAccessKey}&Expires=${expires}&Signature=${encodedSignature}`;
   } catch (error) {
     console.error('Error generating signed URL:', error);
     throw error;
   }
 };
 
-/**
- * Get a file's metadata
- * @param key Key of the file
- */
-export const getFileMetadata = async (key: string): Promise<AWS.S3.HeadObjectOutput> => {
+// Get a file's metadata
+export const getFileMetadata = async (key: string): Promise<any> => {
   try {
-    const response = await s3.headObject({
-      Bucket: spacesBucket,
-      Key: key,
-    }).promise();
+    const response = await axios.head(`https://${spacesEndpoint}/${spacesBucket}/${key}`, {
+      headers: {
+        'Authorization': `AWS ${spacesAccessKey}:${spacesSecretKey}`,
+      },
+    });
     
-    return response;
+    return response.headers;
   } catch (error) {
     console.error('Error getting file metadata:', error);
     throw error;
   }
 };
-
-/**
- * Check if a file exists
- * @param key Key of the file
- */
-export const fileExists = async (key: string): Promise<boolean> => {
-  try {
-    await s3.headObject({
-      Bucket: spacesBucket,
-      Key: key,
-    }).promise();
-    
-    return true;
-  } catch (error) {
-    if ((error as AWS.AWSError).code === 'NotFound') {
-      return false;
-    }
-    throw error;
-  }
-};
-
-/**
- * Get CDN URL for a key
- * @param key Key of the file
- */
-export const getCdnUrl = (key: string): string => {
-  return `${spacesCdnUrl}/${key}`;
-};
-
-/**
- * Get direct Space URL for a key
- * @param key Key of the file
- */
-export const getSpaceUrl = (key: string): string => {
-  return `${spacesUrl}/${key}`;
-};
-
-// Export the S3 client for advanced usage
-export { s3 };
