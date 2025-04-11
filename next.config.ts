@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
     // Add externals for server-side code
     if (isServer) {
       config.externals = [
-        ...config.externals || [],
+        ...(Array.isArray(config.externals) ? config.externals : []),
         {
           'aws-sdk': 'commonjs aws-sdk',
           redis: 'commonjs redis',
