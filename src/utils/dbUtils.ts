@@ -257,16 +257,22 @@ export const db = {
           merkleRoot: row.merkle_root
         };
       },
-      (): AirdropClaim | null => {
+      // Use type assertion to match the expected return type
+      () => {
         // In-memory fallback
         const claim = inMemoryStorage.airdropClaims[address.toLowerCase()];
         if (!claim) return null;
         
         // Ensure txHash is defined (convert optional to required)
         return {
-          ...claim,
-          txHash: claim.txHash || null // Ensure txHash is never undefined
-        };
+          address: claim.address,
+          amount: claim.amount,
+          timestamp: claim.timestamp,
+          txHash: claim.txHash || null, // Ensure txHash is never undefined
+          status: claim.status,
+          merkleProof: claim.merkleProof,
+          merkleRoot: claim.merkleRoot
+        } as any;
       }
     );
   },
