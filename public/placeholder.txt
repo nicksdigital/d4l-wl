@@ -1,0 +1,5 @@
+In a production environment, you would need to add:
+
+1. hero-bg.jpg - A background image for the hero section
+2. favicon.ico - A favicon for the website 
+3. Any other static assets needed for the site

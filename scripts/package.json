@@ -1,0 +1,12 @@
+{
+  "name": "d4l-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for D4L platform",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.1",
+    "redis": "^4.6.10"
+  }
+}
