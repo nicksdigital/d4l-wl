@@ -191,7 +191,7 @@ async function handleStatusUpdate(request: NextRequest) {
     return createErrorResponse(
       ErrorCode.INTERNAL_ERROR,
       "Internal server error",
-      process.env.NODE_ENV === "development" ? error.message : undefined
+      process.env.NODE_ENV === "development" ? error instanceof Error ? error.message : String(error) : undefined
     );
   }
 }
