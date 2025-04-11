@@ -15,16 +15,27 @@ interface RateLimitResult {
   message?: string;
 }
 
+interface RedisMultiExecResult {
+  [key: string]: [string, string | number];
+}
+
 export const rateLimit = async (key: string, ip: string): Promise<RateLimitResult> => {
   try {
     const rateLimitKey = `rate-limit:${key}:${ip}`;
-    const [currentCount, expiry] = await redisClient.multi()
+    const result: RedisMultiExecResult = await redisClient.multi()
       .get(rateLimitKey)
       .ttl(rateLimitKey)
       .exec();
 
-    const count = currentCount?.[1] ? parseInt(currentCount[1]) : 0;
-    const timeRemaining = expiry?.[1];
+    if (!result || Object.keys(result).length !== 2) {
+      throw new Error('Invalid Redis multi-exec result');
+    }
+
+    const currentCount = result['GET'][1] as string | null;
+    const expiry = result['TTL'][1] as number | null;
+
+    const count = currentCount ? parseInt(currentCount) : 0;
+    const timeRemaining = expiry || 0;
 
     if (count >= 100) {
       return {

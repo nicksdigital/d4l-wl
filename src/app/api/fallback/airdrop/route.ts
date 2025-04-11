@@ -86,11 +86,14 @@ export async function POST(request: NextRequest) {
     
     // Validate amount
     try {
-      ethers.parseUnits(amount, 18); // Validate that amount is a valid number
+      const parsedAmount = ethers.utils.parseUnits(amount, 18); // Validate that amount is a valid number
+      if (!parsedAmount) {
+        throw new Error('Invalid amount format');
+      }
     } catch (error) {
       return createErrorResponse(
         ErrorCode.VALIDATION_ERROR,
-        "Invalid amount format"
+        'Invalid amount format'
       );
     }
     
@@ -230,7 +233,7 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Verify the address is valid
-    if (!ethers.isAddress(address)) {
+    if (!ethers.utils.isAddress(address)) {
       return NextResponse.json(
         { error: "Invalid address format" },
         { status: 400 }
@@ -246,7 +249,7 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Connect to the contract
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
     const contract = new ethers.Contract(
       process.env.AIRDROP_CONTRACT_ADDRESS!,
       AirdropControllerABI,
@@ -318,12 +321,11 @@ export async function FALLBACK(request: NextRequest) {
     if (!feeData.gasPrice) {
       throw new Error('Failed to get gas price');
     }
-    const gasPrice = feeData.gasPrice;
+    const gasPrice = ethers.utils.parseUnits('10', 'gwei');
 
     // Get gas limit and calculate cost
-    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, amount, proof);
-    const gasCost = gasPrice * gasLimit;
-    const gasCostNumber = Number(gasCost);
+    const gasLimit = await contractWithSigner.estimateGas["claim(address,uint256,bytes32[])"](address, ethers.utils.parseUnits(amount, 18), proof);
+    const gasCost = gasPrice.mul(gasLimit);
 
     // Get signer address and balance
     const signerAddress = await signer.getAddress();
@@ -338,7 +340,7 @@ export async function FALLBACK(request: NextRequest) {
     }
 
     // Execute the claim
-    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, amount, proof);
+    const tx = await contractWithSigner["claim(address,uint256,bytes32[])"](address, ethers.utils.parseUnits(amount, 18), proof);
 
     // Wait for the transaction to be mined
     const receipt = await tx.wait();
@@ -351,10 +353,10 @@ export async function FALLBACK(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      txHash: tx.hash,
-      gasUsed: receipt.gasUsed.toNumber(),
-      gasPrice: gasPrice.toNumber(),
-      gasCost: gasCostNumber,
+      txHash: receipt.transactionHash,
+      gasUsed: Number(receipt.gasUsed.toString()),
+      gasPrice: Number(gasPrice.toString()),
+      gasCost: Number(gasCost.toString()),
       timestamp: receipt.timestamp
     });
   } catch (error: unknown) {

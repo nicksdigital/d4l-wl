@@ -83,6 +83,7 @@ export default function ProfilePage() {
                         { indexed: false, name: 'social', type: 'string' }
                       ],
                       name: 'UserRegistered',
+                      type: 'event'
                     },
                     args: {
                       user: addressParam as `0x${string}`,

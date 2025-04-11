@@ -63,7 +63,7 @@ export function useWeb3() {
             functionName,
             args,
           });
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Error reading ${functionName}:`, error);
           // If a specific function is missing on the chain (different from the ABI), we can handle it gracefully
           if (
@@ -92,7 +92,7 @@ export function useWeb3() {
             args,
           });
           return hash;
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Error writing ${functionName}:`, error);
           throw error;
         }
@@ -119,9 +119,9 @@ export function useWeb3() {
         });
         
         setError(null);
-      } catch (err: any) {
-        console.error('Error initializing contracts:', err);
-        setError(err.message || 'Failed to initialize contracts');
+      } catch (error: any) {
+        console.error('Web3 error:', error);
+        setError(error.message || 'An error occurred');
       } finally {
         setIsLoading(false);
       }
@@ -135,7 +135,7 @@ export function useWeb3() {
     try {
       if (!contracts.airdropController) throw new Error("Airdrop controller not initialized");
       return await contracts.airdropController.read('getAirdropStatus');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting airdrop status:", error);
       return { isActive: false, isPaused: true, startTime: 0 };
     }
@@ -145,7 +145,7 @@ export function useWeb3() {
     try {
       if (!contracts.airdropController) throw new Error("Airdrop controller not initialized");
       return await contracts.airdropController.read('getTotalMinted');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting total minted:", error);
       return 0;
     }
@@ -155,7 +155,7 @@ export function useWeb3() {
     try {
       if (!contracts.wishlistRegistry) throw new Error("Wishlist registry not initialized");
       return await contracts.wishlistRegistry.read('totalRegistered');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting total registered:", error);
       return 0;
     }
@@ -165,7 +165,7 @@ export function useWeb3() {
     try {
       if (!contracts.wishlistRegistry) throw new Error("Wishlist registry not initialized");
       return await contracts.wishlistRegistry.read('registrationOpen');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking if registration is open:", error);
       return false;
     }

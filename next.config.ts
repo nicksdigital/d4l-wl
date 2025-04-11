@@ -2,9 +2,9 @@ import type { NextConfig } from 'next';
 import type { Configuration as WebpackConfig } from 'webpack';
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   // Optimize development performance
-  swcMinify: true,
+ 
   // Optimize webpack configuration
   webpack: (config: WebpackConfig, { dev, isServer }) => {
     // Conditionally apply optimizations only in development
@@ -36,25 +36,27 @@ const nextConfig: NextConfig = {
     }
 
     // Add Node.js polyfill for webpack
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-      path: false,
-      crypto: false,
-      stream: false,
-      zlib: false,
-      http: false,
-      https: false,
-      os: false,
-      buffer: false,
-    };
-
+    config.resolve = {
+      ...config.resolve,
+      fallback: {
+        ...config.resolve?.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        path: false,
+        crypto: false,
+        stream: false,
+        zlib: false,
+        http: false,
+        https: false,
+        os: false,
+        buffer: false,
+      },
+    }
     // Add externals for server-side code
     if (isServer) {
       config.externals = [
-        ...(config.externals || []),
+        ...config.externals || [],
         {
           'aws-sdk': 'commonjs aws-sdk',
           redis: 'commonjs redis',

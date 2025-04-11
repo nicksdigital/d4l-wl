@@ -244,7 +244,7 @@ export const db = {
         
         const result = await pool.query(query);
         
-        return result.rows.map(row => ({
+        return result.rows.map((row: Record<string, any>) => ({
           address: row.address,
           amount: row.amount,
           timestamp: row.timestamp,
