@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 
 interface SidebarProps {
   activeSection: string;
@@ -58,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, scrollToSection
   }, [currentSection, activeSection]);
 
   return (
-    <>
+    <React.Fragment>
       {/* Mobile navigation bar - visible only on small screens */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-white/10 px-2 py-2">
         <div className="flex justify-between items-center overflow-x-auto hide-scrollbar">
@@ -145,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, scrollToSection
           Download PDF
         </button>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 
