@@ -11,7 +11,14 @@ import { ArrowRightIcon, CheckCircleIcon, GlobeAltIcon, UserGroupIcon, CurrencyD
 // Page-specific caching behavior is configured in config.ts
 
 export default function Home() {
+  // Use state to track client-side rendering
+  const [isMounted, setIsMounted] = useState(false);
   const { isConnected, contracts, chainId } = useWeb3();
+  
+  // Set mounted state after component mounts
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   // Use the cached data hook with content tagging for airdrop status
   const { data: airdropData, isLoading } = useCachedData(
     async () => {

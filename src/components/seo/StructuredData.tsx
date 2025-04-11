@@ -1,14 +1,31 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 
 interface StructuredDataProps {
   data: Record<string, any>;
 }
 
 export default function StructuredData({ data }: StructuredDataProps) {
+  // Only render on client-side to avoid hydration mismatches
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use a stable, deterministic JSON string
+  const jsonString = JSON.stringify(data);
+  
+  if (!mounted) {
+    // Return null during SSR to avoid hydration mismatch
+    return null;
+  }
+  
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonString }}
     />
   );
 }

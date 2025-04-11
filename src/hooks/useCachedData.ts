@@ -33,9 +33,14 @@ export function useCachedData<T>(
   useEffect(() => {
     let isMounted = true;
     
+    // Use a stable function reference to avoid triggering the effect unnecessarily
     const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
+      // Don't set loading state during initial render to prevent hydration issues
+      // Only set it on the client side
+      if (typeof window !== 'undefined') {
+        setIsLoading(true);
+        setError(null);
+      }
       
       try {
         // Generate version identifier if versionFn is provided
@@ -52,8 +57,13 @@ export function useCachedData<T>(
           const cachedData = await getCachedDataFromRedis<T>(cacheKey, cacheParams);
           
           if (cachedData && isMounted) {
-            setData(cachedData);
-            setIsLoading(false);
+            // Use setTimeout to ensure this doesn't happen during render
+            setTimeout(() => {
+              if (isMounted) {
+                setData(cachedData);
+                setIsLoading(false);
+              }
+            }, 0);
             return;
           }
         }
@@ -62,27 +72,37 @@ export function useCachedData<T>(
         const freshData = await fetchFn();
         
         if (isMounted) {
-          setData(freshData);
+          // Use setTimeout to ensure this doesn't happen during render
+          setTimeout(() => {
+            if (isMounted) {
+              setData(freshData);
+              setIsLoading(false);
+            }
+          }, 0);
           
           // Cache the fresh data with tags and version
           await cacheDataWithRedis(cacheKey, freshData, tags, cacheParams, expiration, version);
         }
       } catch (err) {
         if (isMounted) {
-          setError(err as Error);
           console.error('Error fetching data:', err);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
+          // Use setTimeout to ensure this doesn't happen during render
+          setTimeout(() => {
+            if (isMounted) {
+              setError(err as Error);
+              setIsLoading(false);
+            }
+          }, 0);
         }
       }
     };
     
-    fetchData();
+    // Use setTimeout to ensure fetchData runs after the component mounts
+    const timeoutId = setTimeout(fetchData, 0);
     
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...dependencies]);

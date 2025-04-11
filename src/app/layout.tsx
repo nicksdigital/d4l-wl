@@ -7,7 +7,8 @@ import { Providers } from "@/components/providers/Providers";
 import PageTransition from "@/components/common/PageTransition";
 import CookieConsent from "@/components/gdpr/CookieConsent";
 import { baseMetadata } from "@/lib/metadata";
-import StructuredData, { organizationSchema, websiteSchema } from "@/components/seo/StructuredData";
+import { organizationSchema, websiteSchema } from "@/components/seo/StructuredData";
+import StructuredDataManager from "@/components/seo/StructuredDataManager";
 import { defaultCacheConfig } from "@/lib/cache";
 
 const inter = Inter({ 
@@ -34,8 +35,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#111827" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <StructuredData data={organizationSchema} />
-        <StructuredData data={websiteSchema} />
+        {/* Move structured data to client-side to avoid hydration mismatches */}
       </head>
       <body className={`${inter.className} ${inter.variable} bg-gray-900 text-gray-100`}>
         <Providers cookies={null}>
@@ -53,6 +53,8 @@ export default function RootLayout({
             </div>
             {/* GDPR Cookie Consent Banner */}
             <CookieConsent />
+            {/* Use the client-only StructuredDataManager */}
+            <StructuredDataManager />
           </PageTransition>
         </Providers>
       </body>
