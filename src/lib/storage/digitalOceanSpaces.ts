@@ -170,51 +170,37 @@ export const listFiles = async (prefix: string = '', maxKeys: number = 1000): Pr
 // Upload a buffer to Digital Ocean Spaces
 export const uploadBuffer = async (
   buffer: Buffer,
-  fileName: string,
+  key: string,
   options: UploadOptions = {}
 ): Promise<UploadedFileInfo> => {
   try {
-    // Generate a unique key
-    const key = generateKey(fileName, options.folder);
-    
-    // Determine content type
-    const contentType = options.contentType || 'application/octet-stream';
-    
-    // Default cache control
-    const cacheControl = options.cacheControl || 'public, max-age=31536000'; // 1 year by default
-    
-    // Upload parameters
-    const headers = {
-      'Content-Type': contentType,
-      'Content-Length': buffer.length.toString(),
-      'Cache-Control': cacheControl,
-    };
-    
-    if (options.isPublic !== false) {
-      headers['x-amz-acl'] = 'public-read';
-    }
-    
-    if (options.metadata) {
-      Object.keys(options.metadata).forEach((key) => {
-        headers[`x-amz-meta-${key}`] = options.metadata[key];
-      });
-    }
-    
-    // Upload buffer
-    const response = await axios.put(`https://${spacesEndpoint}/${spacesBucket}/${key}`, buffer, {
-      headers,
+    const response = await fetch('/api/storage/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'upload',
+        key,
+        data: Array.from(buffer),
+        options
+      })
     });
-    
-    // Return uploaded file info
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error('Upload failed');
+    }
+
     return {
-      key: response.data.Key,
-      size: buffer.length,
-      url: `${spacesUrl}/${response.data.Key}`,
-      cdnUrl: `${spacesCdnUrl}/${response.data.Key}`,
-      contentType,
+      key,
+      size: buffer.byteLength,
+      url: getSpaceUrl(key),
+      cdnUrl: getCdnUrl(key),
+      contentType: options.contentType || 'application/octet-stream'
     };
   } catch (error) {
-    console.error('Error uploading buffer to DO Spaces:', error);
+    console.error('Error uploading buffer:', error);
     throw error;
   }
 };

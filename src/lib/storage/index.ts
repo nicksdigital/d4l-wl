@@ -6,5 +6,6 @@ export {
   listFiles, 
   generateKey, 
   getCdnUrl, 
-  getSpaceUrl 
+  getSpaceUrl,
+  uploadBuffer 
 } from './digitalOceanSpaces';
