@@ -35,7 +35,37 @@ const nextConfig: NextConfig = {
       };
     }
 
+    // Add Node.js polyfill for webpack
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+      path: false,
+      crypto: false,
+      stream: false,
+      zlib: false,
+      http: false,
+      https: false,
+      os: false,
+      buffer: false,
+    };
+
+    // Add externals for server-side code
+    if (isServer) {
+      config.externals = [
+        ...(config.externals || []),
+        {
+          'aws-sdk': 'commonjs aws-sdk',
+          redis: 'commonjs redis',
+        },
+      ];
+    }
+
     return config;
+  },
+  images: {
+    domains: ['localhost', 'tor1.cdn.digitaloceanspaces.com'],
   },
   // Only use TypeScript type checking in production builds to speed up development
   typescript: {

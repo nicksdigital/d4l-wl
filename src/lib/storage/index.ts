@@ -1,2 +1,10 @@
 // Export all DigitalOcean Spaces functions
-export * from './digitalOceanSpaces';
+export { 
+  uploadFile, 
+  deleteFile, 
+  fileExists, 
+  listFiles, 
+  generateKey, 
+  getCdnUrl, 
+  getSpaceUrl 
+} from './digitalOceanSpaces';

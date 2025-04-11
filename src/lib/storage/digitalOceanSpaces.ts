@@ -39,7 +39,7 @@ interface ListFilesResponse {
 }
 
 // Generate a unique key for the file
-const generateKey = (fileName: string, folder?: string): string => {
+export const generateKey = (fileName: string, folder?: string): string => {
   const timestamp = new Date().getTime();
   const random = Math.random().toString(36).substring(2, 15);
   const baseName = path.basename(fileName);
@@ -50,12 +50,12 @@ const generateKey = (fileName: string, folder?: string): string => {
 };
 
 // Get CDN URL for a key
-const getCdnUrl = (key: string): string => {
+export const getCdnUrl = (key: string): string => {
   return `${process.env.DO_SPACES_CDN_URL || ''}/${key}`;
 };
 
 // Get direct Space URL for a key
-const getSpaceUrl = (key: string): string => {
+export const getSpaceUrl = (key: string): string => {
   return `${process.env.DO_SPACES_URL || ''}/${key}`;
 };
 
@@ -147,15 +147,22 @@ export const fileExists = async (key: string): Promise<boolean> => {
 // List files in a folder
 export const listFiles = async (prefix: string = '', maxKeys: number = 1000): Promise<ListFilesResponse[]> => {
   try {
-    const response = await axios.get(`https://${spacesEndpoint}/${spacesBucket}?prefix=${prefix}&max-keys=${maxKeys}`, {
+    const response = await fetch('/api/storage/list', {
+      method: 'POST',
       headers: {
-        'Authorization': `AWS ${spacesAccessKey}:${spacesSecretKey}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        action: 'list',
+        prefix,
+        maxKeys
+      })
     });
-    
-    return response.data.Contents || [];
+
+    const result = await response.json();
+    return result.files || [];
   } catch (error) {
-    console.error('Error listing files in DO Spaces:', error);
+    console.error('Error listing files:', error);
     throw error;
   }
 };

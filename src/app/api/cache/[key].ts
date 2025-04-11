@@ -21,6 +21,9 @@ export async function GET(
 ) {
   try {
     const data = await redisClient.get(params.key);
+    if (data === null) {
+      return NextResponse.json({ error: 'Key not found in cache' }, { status: 404 });
+    }
     return NextResponse.json({ data });
   } catch (error) {
     console.error('Redis GET error:', error);
@@ -33,7 +36,10 @@ export async function DELETE(
   { params }: { params: { key: string } }
 ) {
   try {
-    await redisClient.del(params.key);
+    const deleted = await redisClient.del(params.key);
+    if (deleted === 0) {
+      return NextResponse.json({ error: 'Key not found in cache' }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Redis DELETE error:', error);

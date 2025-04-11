@@ -20,8 +20,22 @@ export async function POST(request: NextRequest) {
   const { action, key, data } = await request.json();
 
   try {
+    if (!action || !key) {
+      return NextResponse.json(
+        { error: 'Missing required parameters' },
+        { status: 400 }
+      );
+    }
+
     switch (action) {
       case 'upload':
+        if (!data) {
+          return NextResponse.json(
+            { error: 'Missing data for upload' },
+            { status: 400 }
+          );
+        }
+
         const uploadParams = {
           Bucket: spacesBucket,
           Key: key,
@@ -48,7 +62,10 @@ export async function POST(request: NextRequest) {
           await s3.headObject(headParams).promise();
           return NextResponse.json({ exists: true });
         } catch (error) {
-          return NextResponse.json({ exists: false });
+          if (error instanceof Error && error.name === 'NotFound') {
+            return NextResponse.json({ exists: false });
+          }
+          throw error;
         }
 
       default:
@@ -58,7 +75,11 @@ export async function POST(request: NextRequest) {
         );
     }
   } catch (error) {
-    console.error('Storage error:', error);
+    if (error instanceof Error) {
+      console.error('Storage error:', error.message);
+    } else {
+      console.error('Storage error:', error);
+    }
     return NextResponse.json(
       { error: 'Storage operation failed' },
       { status: 500 }
