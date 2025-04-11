@@ -25,6 +25,18 @@ const configureSsl = () => {
     if (!fs) fs = require('fs');
     if (!path) path = require('path');
     
+    // Check if POSTGRES_SSL_MODE is set to 'disable'
+    if (process.env.POSTGRES_SSL_MODE === 'disable') {
+      console.log('SSL mode set to disable, not using SSL for Postgres');
+      return false; // Return false to disable SSL
+    }
+    
+    // Check if POSTGRES_SSL_MODE is set to 'no-verify'
+    if (process.env.POSTGRES_SSL_MODE === 'no-verify') {
+      console.log('SSL mode set to no-verify, disabling certificate verification');
+      return { rejectUnauthorized: false };
+    }
+    
     // Determine the base directory for the CA certificate
     const baseDir = process.env.NODE_ENV === 'production' ? '/data/d4l/frontend' : process.cwd();
     const certPath = path.join(baseDir, 'certs', 'ca.crt');
@@ -35,6 +47,15 @@ const configureSsl = () => {
       const ca = fs.readFileSync(certPath).toString();
       return { ca, rejectUnauthorized: true };
     } else {
+      // Check for CA cert in environment variable
+      if (process.env.POSTGRES_CA_CERT) {
+        console.log('Using CA certificate from environment variable');
+        return { 
+          ca: process.env.POSTGRES_CA_CERT,
+          rejectUnauthorized: true 
+        };
+      }
+      
       console.log('CA certificate not found, disabling certificate verification');
       return { rejectUnauthorized: false };
     }
@@ -53,27 +74,41 @@ if (process.env.DB_HOST || process.env.DATABASE_URL) {
     const pg = require('pg');
     Pool = pg.Pool;
     
-    // Force disable SSL certificate validation for immediate connection
-    const sslConfig = { rejectUnauthorized: false };
+    // Configure SSL options
+    const sslConfig = configureSsl();
     
     // Initialize PostgreSQL connection pool
     if (process.env.DATABASE_URL) {
       // Use connection string if available
-      pool = new Pool({
+      const poolConfig: any = {
         connectionString: process.env.DATABASE_URL,
-        ssl: sslConfig,
-      });
+      };
+      
+      // Add SSL config if not disabled
+      if (sslConfig !== false) {
+        poolConfig.ssl = sslConfig;
+      }
+      
+      pool = new Pool(poolConfig);
     } else {
       // Use individual connection parameters
-      pool = new Pool({
+      const poolConfig: any = {
         user: process.env.DB_USER || 'doadmin',
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT || '5432', 10),
         database: process.env.DB_NAME || 'defaultdb',
-        ssl: sslConfig,
-      });
+      };
+      
+      // Add SSL config if not disabled
+      if (sslConfig !== false) {
+        poolConfig.ssl = sslConfig;
+      }
+      
+      pool = new Pool(poolConfig);
     }
+    
+    console.log('PostgreSQL pool created with SSL:', sslConfig ? 'enabled' : 'disabled');
     
     // Test the connection
     pool.query('SELECT NOW()', (err: any, res: any) => {
