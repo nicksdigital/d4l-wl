@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": true,
+      "decorators": false,
+      "dynamicImport": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic",
+        "pragma": "React.createElement",
+        "pragmaFrag": "React.Fragment",
+        "throwIfNamespace": true,
+        "development": false,
+        "useBuiltins": true
+      },
+      "optimizer": {
+        "globals": {
+          "vars": {
+            "process.env.NODE_ENV": "\"production\""
+          }
+        }
+      }
+    },
+    "target": "es2020",
+    "loose": true,
+    "externalHelpers": true,
+    "keepClassNames": false
+  },
+  "minify": true,
+  "module": {
+    "type": "es6",
+    "strict": true,
+    "strictMode": true,
+    "lazy": false,
+    "noInterop": false
+  },
+  "sourceMaps": false,
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    ".out",
+    "coverage"
+  ],
+
+  "env": {
+    "targets": {
+      "chrome": "79",
+      "firefox": "80",
+      "safari": "13",
+      "edge": "18"
+    },
+    "mode": "usage",
+    "coreJs": "3.22"
+  }
+}

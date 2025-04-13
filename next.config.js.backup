@@ -1,0 +1,146 @@
+/** @type {import('next').NextConfig} */
+
+// Add bundle analyzer in build:analyze mode
+const withBundleAnalyzer = process.env.ANALYZE === 'true'
+  ? require('@next/bundle-analyzer')({
+      enabled: true,
+    })
+  : (config) => config;
+
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gateway.ipfs.io',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self' https://* http://* ws://* wss://* data: blob: 'unsafe-inline' 'unsafe-eval';
+              script-src 'self' https://* http://* 'unsafe-inline' 'unsafe-eval' blob:;
+              style-src 'self' https://* http://* 'unsafe-inline' https://fonts.googleapis.com;
+              font-src 'self' https://* http://* data: https://fonts.gstatic.com;
+              img-src 'self' https://* http://* data: blob:;
+              media-src 'self' https://* http://* data: blob:;
+              connect-src 'self' https://* http://* ws://* wss://* data:;
+              frame-src 'self' https://* http://* https://verify.walletconnect.org https://verify.walletconnect.com;
+              worker-src 'self' blob:;
+              child-src 'self' blob:;
+              object-src 'none';
+              base-uri 'self';
+              form-action 'self';
+              frame-ancestors 'self';
+              upgrade-insecure-requests;
+            `.replace(/\s{2,}/g, ' ').trim(),
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+    ];
+  },
+  // Compiler options
+  compiler: {
+    styledComponents: true
+  },
+
+  // Experimental features for faster builds
+  experimental: {
+    // Optimize package imports
+    optimizePackageImports: ['react-icons', '@heroicons/react', 'date-fns', 'lodash'],
+    // Optimize CSS
+    optimizeCss: true,
+  },
+
+
+  // Server external packages (moved from experimental in Next.js 15)
+  serverExternalPackages: ['sharp', 'react-dom'],
+  // Webpack optimizations
+  webpack: (config, { dev }) => {
+    // Polyfill fallbacks
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+
+    // Development optimizations
+    if (dev) {
+      // Reduce the number of chunks
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          // Merge all chunks together
+          commons: {
+            name: 'commons',
+            chunks: 'all',
+            minChunks: 2,
+            reuseExistingChunk: true,
+          },
+          // Create a framework bundle for shared dependencies
+          framework: {
+            chunks: 'all',
+            name: 'framework',
+            test: /[\\/]node_modules[\\/](@react|react|react-dom|next|@next)[\\/]/,
+            priority: 40,
+            enforce: true,
+          },
+        },
+      };
+    }
+
+    return config;
+  },
+  // Enable SWC for faster transpilation (when not using Babel)
+  // Reduce the size of the Next.js runtime
+  poweredByHeader: false,
+  // Increase build performance by skipping type checking in build
+  typescript: {
+    // Still run type checking but don't fail the build
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Still run ESLint but don't fail the build
+    ignoreDuringBuilds: true,
+  },
+};
+
+module.exports = withBundleAnalyzer(nextConfig);

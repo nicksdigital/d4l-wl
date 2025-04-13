@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/core/Header";
 import Footer from "@/components/core/Footer";
+import MobileNavBar from "@/components/core/MobileNavBar";
+import ErrorBoundary from "@/components/error/ErrorBoundary";
 import { Providers } from "@/components/providers/Providers";
 import PageTransition from "@/components/common/PageTransition";
 import CookieConsent from "@/components/gdpr/CookieConsent";
@@ -11,7 +13,7 @@ import { organizationSchema, websiteSchema } from "@/components/seo/StructuredDa
 import StructuredDataManager from "@/components/seo/StructuredDataManager";
 import { defaultCacheConfig } from "@/lib/cache";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   display: 'swap', // Ensure text is visible during font loading
   variable: '--font-inter',
@@ -44,17 +46,21 @@ export default function RootLayout({
             Skip to content
           </a>
           <PageTransition>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main id="main-content" className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            {/* GDPR Cookie Consent Banner */}
-            <CookieConsent />
-            {/* Use the client-only StructuredDataManager */}
-            <StructuredDataManager />
+            <ErrorBoundary>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main id="main-content" className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  {children}
+                </main>
+                <Footer />
+                {/* Mobile Navigation Bar - fixed at bottom on mobile */}
+                <MobileNavBar />
+              </div>
+              {/* GDPR Cookie Consent Banner */}
+              <CookieConsent />
+              {/* Use the client-only StructuredDataManager */}
+              <StructuredDataManager />
+            </ErrorBoundary>
           </PageTransition>
         </Providers>
       </body>
