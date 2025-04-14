@@ -6,28 +6,28 @@ export const Technology = () => {
       <h2 className="text-3xl font-bold mb-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
         Technology
       </h2>
-      
+
       {/* Technology Overview */}
       <div className="relative mb-16 p-8 bg-gradient-to-br from-indigo-900/30 to-blue-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full text-white font-semibold text-sm">
           Overview
         </div>
         <p className="text-xl leading-relaxed text-white/90 mt-4">
-          D4L leverages <span className="font-bold text-blue-300">cutting-edge blockchain technology</span> to create a comprehensive platform that combines advanced trading, gamified battles, and prediction markets in a secure environment.
+          D4L leverages <span className="font-bold text-blue-300">cutting-edge blockchain technology</span> to create a comprehensive platform that combines secure token creation and validation, advanced trading, gamified battles, and prediction markets, ensuring a trusted and scam-free environment for creators and participants alike.
         </p>
       </div>
-      
+
       {/* Core Components Header */}
       <div className="flex items-center mb-10">
         <div className="h-px flex-grow bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         <h3 className="text-2xl font-bold px-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Core Components</h3>
         <div className="h-px flex-grow bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
       </div>
-      
+
       {/* AltCoin Launchpad */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-yellow-900/20 to-orange-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-orange-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-white font-semibold text-sm">
-          AltCoin Launchpad
+          Token Validator
         </div>
         <div className="flex items-start">
           <div className="mr-6 mt-2 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 p-4 rounded-lg">
@@ -37,7 +37,7 @@ export const Technology = () => {
           </div>
           <div className="flex-1">
             <p className="text-lg leading-relaxed text-white/90 mb-4">
-              Spin up your own meme coin with D4L's creator tools—customize it, secure it, launch it. Our verification system sniffs out scams, anti-bot features prevent manipulation, and no rug pulls to ruin the party.
+              Fire up your own token with D4L's token creator tools—tweak it, lock it, launch it with swagger. Our verification system hunts down scams, packing anti-bot defenses and bulletproof checks to crush rug pulls, keeping the vibe legit for every creator. Got a token already? Run it through our validator, and if you've got the heat, you'll earn a shot to dominate in BonkWars.
             </p>
             <p className="text-lg leading-relaxed text-white/90">
               Hit market cap milestones, and your token's promoted to <span className="font-semibold text-yellow-300">BonkWars</span>—where the real pioneers shine. It's a proving ground for hype and hustle.
@@ -45,11 +45,11 @@ export const Technology = () => {
           </div>
         </div>
       </div>
-      
+
       {/* HydraCurve AMM */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white font-semibold text-sm">
-          HydraCurve AMM
+          QZKP Technology
         </div>
         <div className="flex items-start">
           <div className="mr-6 mt-2 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-lg">
@@ -61,12 +61,12 @@ export const Technology = () => {
             {/* Animated background elements */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
             <div className="absolute -bottom-20 -left-10 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
-            
+
             <div className="flex items-center mb-4">
               <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-bold px-2 py-1 rounded mr-2">130%</span>
               <span className="text-white/80 text-sm">Capital Efficiency</span>
             </div>
-            
+
             <div className="mb-6">
               <p className="text-lg leading-relaxed text-white/90 mb-4">
                 The revolutionary <span className="font-semibold text-blue-300">HydraCurve AMM</span>, created by Nick, is the beating heart of D4L. This groundbreaking technology features a dynamic bonding curve that automatically adjusts to market conditions and external risk factors in real-time.
@@ -75,7 +75,7 @@ export const Technology = () => {
                 Built on Nick's pioneering <span className="font-semibold text-cyan-300">Quantum Zero-Knowledge Proof (QZKP)</span> technology, the HydraCurve provides unparalleled security and privacy while delivering superior capital efficiency compared to traditional AMMs.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="bg-blue-900/30 backdrop-blur-sm rounded-lg p-4 border border-blue-500/20">
                 <h4 className="text-blue-300 font-semibold mb-2">Dynamic Risk-Adjusted Amplification</h4>
@@ -83,7 +83,7 @@ export const Technology = () => {
                   Implements the formula <span className="font-mono">A(x, H, p_event) = A_base * exp(-γ·Volatility) * f(H) * g(p_event)</span> where H is a risk variable integrating external market conditions, and p_event represents forecasted event probability. This allows real-time liquidity optimization even during extreme market conditions.
                 </p>
               </div>
-              
+
               <div className="bg-cyan-900/30 backdrop-blur-sm rounded-lg p-4 border border-cyan-500/20">
                 <h4 className="text-cyan-300 font-semibold mb-2">Tri-Function Mathematical Framework</h4>
                 <p className="text-white/80 text-sm leading-relaxed">
@@ -91,13 +91,13 @@ export const Technology = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center mb-4">
               <div className="h-px flex-grow bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
               <span className="px-3 text-white/70 text-sm font-medium">Key Benefits</span>
               <div className="h-px flex-grow bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
             </div>
-            
+
             <ul className="list-none space-y-2 mb-4">
               <li className="flex items-start">
                 <span className="mr-2 text-blue-400 mt-1">
@@ -132,7 +132,7 @@ export const Technology = () => {
                 <span className="text-white/90 text-base">Zero-knowledge transaction privacy that maintains full on-chain verifiability and auditability</span>
               </li>
             </ul>
-            
+
             <div className="p-5 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-lg border-l-4 border-blue-500">
               <p className="text-white/90 text-sm italic mb-3">
                 "The HydraCurve AMM represents a quantum leap in decentralized exchange technology. By leveraging QZKP (Quantum Zero-Knowledge Proof) principles, Nick has created a system that simultaneously maximizes capital efficiency while providing unmatched privacy and security. The dynamic risk-adjusted bonding curve mechanism adapts in real-time to market conditions, offering DeFi users a resilient infrastructure even in the face of extreme volatility."
@@ -148,7 +148,7 @@ export const Technology = () => {
           </div>
         </div>
       </div>
-      
+
       {/* QZKP Technology */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-indigo-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white font-semibold text-sm">
@@ -164,11 +164,11 @@ export const Technology = () => {
             {/* Animated background elements */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
             <div className="absolute -bottom-20 -left-10 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
-            
+
             <p className="text-lg leading-relaxed text-white/90 mb-4">
               <span className="font-semibold text-purple-300">Quantum Zero-Knowledge Proof (QZKP)</span> is Nick's revolutionary technology that integrates quantum principles with zero-knowledge cryptography. Developed using Qiskit quantum computing framework, QZKP leverages quantum mechanical phenomena to create an unprecedented level of transaction privacy and security.
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="bg-purple-900/30 backdrop-blur-sm rounded-lg p-4 border border-purple-500/20">
                 <h4 className="text-purple-300 font-semibold mb-2">Tri-Phase Quantum Mechanism</h4>
@@ -176,7 +176,7 @@ export const Technology = () => {
                   Implements a three-phase approach: (1) <span className="font-mono">Probabilistic Encoding</span> using quantum superposition, (2) <span className="font-mono">Logical Entanglement</span> creating state dependencies, and (3) <span className="font-mono">Probabilistic Verification</span> through quantum measurement.
                 </p>
               </div>
-              
+
               <div className="bg-indigo-900/30 backdrop-blur-sm rounded-lg p-4 border border-indigo-500/20">
                 <h4 className="text-indigo-300 font-semibold mb-2">Multi-Layered Vector Structure</h4>
                 <p className="text-white/80 text-sm leading-relaxed">
@@ -184,12 +184,12 @@ export const Technology = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center mb-4">
               <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-bold px-2 py-1 rounded mr-2">QUANTUM SECURE</span>
               <span className="text-white/80 text-sm">Protected against both classical and quantum attacks</span>
             </div>
-            
+
             <ul className="list-none space-y-2 mb-4">
               <li className="flex items-start">
                 <span className="mr-2 text-purple-400 mt-1">
@@ -208,7 +208,7 @@ export const Technology = () => {
                 <span className="text-white/90 text-base">Achieves unparalleled transaction privacy while maintaining regulatory compliance through quantum-derived proofs</span>
               </li>
             </ul>
-            
+
             <div className="p-4 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-lg border-l-4 border-purple-500">
               <p className="text-white/90 text-sm italic">
                 "Nick's QZKP technology represents a paradigm shift in cryptographic security. By harnessing quantum mechanical properties for zero-knowledge proofs, he has created a system that maintains perfect transaction privacy while being inherently resistant to attacks from quantum computers—a holy grail in cryptographic circles previously thought to be decades away from practical implementation."
@@ -224,7 +224,7 @@ export const Technology = () => {
           </div>
         </div>
       </div>
-      
+
       {/* BonkWars */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-orange-900/20 to-red-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-red-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white font-semibold text-sm">
@@ -250,7 +250,7 @@ export const Technology = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Prediction Markets */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white font-semibold text-sm">
@@ -276,7 +276,7 @@ export const Technology = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Security Architecture */}
       <div className="relative p-8 bg-gradient-to-br from-green-900/20 to-emerald-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-green-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white font-semibold text-sm">

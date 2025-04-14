@@ -6,7 +6,7 @@ export const Tokenomics = () => {
       <h2 className="text-3xl font-bold mb-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
         Tokenomics
       </h2>
-      
+
       <div className="relative mb-16 p-8 bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-green-500 to-teal-600 rounded-full text-white font-semibold text-sm">
           Overview
@@ -15,7 +15,7 @@ export const Tokenomics = () => {
           The D4L token is your key to this ecosystem: stake it, vote with it, and unlock exclusive benefits. With a total supply of 1 billion tokens, D4L is designed to fuel the platform's growth while providing value to holders.
         </p>
       </div>
-      
+
       {/* Token Distribution */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl border border-white/10 backdrop-blur-sm transform transition-all duration-300 hover:shadow-lg hover:shadow-purple-900/10">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white font-semibold text-sm">
@@ -31,12 +31,11 @@ export const Tokenomics = () => {
           <div className="flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               {[
-                { name: "Community Rewards", percentage: "40%", color: "bg-purple-500" },
+                { name: "Community Ecosystem", percentage: "40%", color: "bg-purple-500" },
                 { name: "Liquidity", percentage: "25%", color: "bg-indigo-500" },
-                { name: "Team & Development", percentage: "15%", color: "bg-blue-500" },
+                { name: "Core Team & Developers", percentage: "20%", color: "bg-blue-500" },
                 { name: "Marketing", percentage: "10%", color: "bg-cyan-500" },
-                { name: "Partnerships", percentage: "5%", color: "bg-teal-500" },
-                { name: "Reserve", percentage: "5%", color: "bg-green-500" }
+                { name: "Partnerships", percentage: "5%", color: "bg-teal-500" }
               ].map((item, index) => (
                 <div key={index} className="flex items-center p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                   <div className={`w-3 h-10 ${item.color} rounded-full mr-3`}></div>
@@ -50,7 +49,7 @@ export const Tokenomics = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Utility & Benefits */}
       <div className="relative mb-10 p-8 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white font-semibold text-sm">
@@ -83,7 +82,7 @@ export const Tokenomics = () => {
         <div className="mt-6">
           <div className="relative h-16 mb-8">
             <div className="absolute left-0 right-0 h-0.5 top-1/2 transform -translate-y-1/2 bg-white/20"></div>
-            
+
             {/* Timeline points */}
             {[
               { position: "left-0", label: "TGE", sublabel: "15% unlock" },
@@ -101,10 +100,13 @@ export const Tokenomics = () => {
               </div>
             ))}
           </div>
-          
-          <p className="text-lg leading-relaxed text-white/90">
-            Team and advisor tokens are subject to a 3-month cliff followed by a 36-month linear vesting schedule to ensure long-term alignment with the project's success.
-          </p>
+
+          <div className="text-lg leading-relaxed text-white/90">
+            <p className="font-bold mb-2">Team (20% of Supply: 200M Tokens)</p>
+            <p className="mb-2">Duration: 3 years</p>
+            <p className="mb-2">Cliff: 12 months (no tokens released until month 12)</p>
+            <p>Vesting: Linear monthly vesting over the remaining 24 months</p>
+          </div>
         </div>
       </div>
     </section>

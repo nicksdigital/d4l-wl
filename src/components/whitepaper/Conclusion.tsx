@@ -7,7 +7,7 @@ export const Conclusion = () => {
       <h2 className="text-3xl font-bold mb-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
         Conclusion
       </h2>
-      
+
       {/* Vision-Forward Conclusion with enhanced design */}
       <div className="relative mb-16 overflow-hidden rounded-xl">
         {/* Background effects */}
@@ -15,13 +15,13 @@ export const Conclusion = () => {
         <div className="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
         <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-        
+
         {/* Content */}
         <div className="relative p-10 border border-white/10 backdrop-blur-sm rounded-xl">
           <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-sm">
             The Future Starts Here
           </div>
-          
+
           <p className="text-2xl font-bold leading-relaxed text-white/90 mt-6 mb-8 text-center">
             D4L isn't just another DeFi platform—it's the future of crypto culture.
           </p>
@@ -59,28 +59,28 @@ export const Conclusion = () => {
           </div>
 
           <p className="text-xl leading-relaxed text-white/90 mb-6">
-            D4L represents the next evolution in decentralized finance, fusing the HydraCurve AMM's 130% capital efficiency with gamified token battles and anti-scam token launches into an integrated ecosystem that rewards both the risk-takers and the builders.
+            D4L is the next frontier in decentralized finance, blending our cutting-edge token creator and validator with gamified altcoin battles, prediction markets, and anti-scam token launches into a dynamic ecosystem that empowers risk-takers and builders alike.
           </p>
-          
+
           <p className="text-xl leading-relaxed text-white/90">
-            We're not just launching a platform—we're igniting a movement where crypto's reckless spirit meets responsible innovation, creating a financial playground that's both secure and thrilling.
+            Far from just a platform, D4L sparks a movement where crypto's bold energy fuses with trusted innovation, delivering a thrilling yet secure financial arena for creators, predictors, and trailblazers.
           </p>
         </div>
       </div>
-      
+
       {/* Join the Community */}
       <div className="relative p-8 bg-gradient-to-br from-indigo-900/30 to-purple-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full text-white font-semibold text-sm">
           Join the Community
         </div>
-        
+
         <div className="flex flex-col md:flex-row items-center justify-between mt-6">
           <div className="mb-8 md:mb-0 md:mr-8 flex-1">
             <h3 className="text-2xl font-bold mb-4 text-white">Be Part of the Future</h3>
             <p className="text-white/80 mb-6">
               Join our growing community of traders, developers, and enthusiasts building the future of decentralized finance. Stay updated on the latest developments, participate in governance, and help shape the future of D4L.
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
               {[
                 { name: "Twitter", icon: "🐦", href: "#", color: "from-blue-500 to-blue-600" },
@@ -88,8 +88,8 @@ export const Conclusion = () => {
                 { name: "Telegram", icon: "📱", href: "#", color: "from-blue-400 to-blue-500" },
                 { name: "GitHub", icon: "📂", href: "#", color: "from-gray-700 to-gray-800" }
               ].map((social, index) => (
-                <Link 
-                  key={index} 
+                <Link
+                  key={index}
                   href={social.href}
                   className={`flex items-center px-4 py-2 rounded-full bg-gradient-to-r ${social.color} text-white font-medium transition-transform hover:scale-105`}
                 >
@@ -99,16 +99,16 @@ export const Conclusion = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="flex-1">
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
               <h4 className="text-xl font-bold mb-4 text-white">Stay Updated</h4>
               <p className="text-white/80 mb-4">Subscribe to our newsletter for the latest updates, features, and community events.</p>
-              
+
               <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email address" 
+                <input
+                  type="email"
+                  placeholder="Your email address"
                   className="flex-grow px-4 py-3 bg-white/10 border border-white/20 rounded-l-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-r-lg text-white font-medium hover:from-purple-600 hover:to-indigo-700 transition-colors">

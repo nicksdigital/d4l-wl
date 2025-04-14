@@ -28,7 +28,7 @@ export const Introduction = () => {
           D4L isn't some boring platform—it's the <span className="font-bold text-blue-300">beating heart of crypto</span>, cultivating a lifestyle built for those who live for wild bets, the enthusiasts who dream in code, and the investors chasing fat stacks. We're throwing advanced trading, gamified battles, token madness, prediction markets, social engagement and robust risk management into a comprehensive DeFi blender, creating an ecosystem that's equal parts adventurous and rock-solid.
         </p>
         <p className="text-lg sm:text-xl leading-relaxed text-white/90">
-          In a 2025 market where opportunities are ripening and clarity is emerging, D4L's the spark—delivering a secure DEX with the revolutionary <span className="font-semibold text-purple-300">HydraCurve</span> magic, a <span className="font-semibold text-yellow-300">BonkWars</span> arena for token community dominance, and prediction markets to flex your brain while you stack your bags.
+          In a 2025 market where opportunities are ripening and clarity is emerging, D4L's the spark— igniting with a slick token forge, ironclad verification vibes, a <span className="font-semibold text-yellow-300">BonkWars</span> arena for token community dominance, and prediction markets to flex your brain while you stack your bags.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export const Introduction = () => {
         </div>
 
         <p className="text-lg leading-relaxed text-white/90 mb-6">
-          The current meme coin scene is a chaotic landscape riddled with pitfalls. Lack of security leaves investors vulnerable to rug pulls, while opaque token launches obscure critical details, leaving participants in the dark.
+          The DeFi landscape is fragmented, with users juggling multiple platforms for different needs. D4L unifies token creation, validation, trading, gaming, and prediction markets into a single ecosystem, leveraging ironclad token verification to ensure trust and prevent scams while creating network effects that empower creators and benefit all participants.
         </p>
         <p className="text-lg leading-relaxed text-white/90">
           Liquidity fragmentation across platforms creates inefficiencies and volatility, and high-risk trading often feels like a gamble with no real edge. It's a culture in desperate need of a reboot—one that preserves the reckless spirit of meme coins but adds the guardrails needed to thrive.
@@ -77,14 +77,14 @@ export const Introduction = () => {
           D4L's Approach: Turning Chaos into Crypto Gold
         </div>
         <p className="text-lg sm:text-xl leading-relaxed text-white/90 mt-4 mb-6 sm:mb-8">
-          Enter D4L—built by trailblazers, for trailblazers, with a twist that hooks everyone. Our meme coin launchpad's scam-proof, locking in trust for creators and players alike. Our DEX, powered by HydraCurve, keeps trades slick and steady—30% capital efficiency isn't just talk, it's more cash in your hand. BonkWars and prediction markets turn the chaos into a game you can win. We're not just another token—we're a lifestyle, a system, a crew, a culture. Risk it for the rush, build it for the future, bank it for the win—D4L's the spark crypto's been missing in 2025.
+          Enter D4L—built by trailblazers, for trailblazers, with a twist that hooks everyone. Our meme coin launchpad's scam-proof, locking in trust with ironclad token validation to crush rug pulls and keep creators and players in the clear. BonkWars and prediction markets turn the chaos into a game you can win. We're not just another token—we're a lifestyle, a system, a crew, a culture. Risk it for the rush, build it for the future, bank it for the win—D4L's the spark crypto's been missing in 2025.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
           {[
             {
-              title: "HydraCurve AMM",
-              description: "Not just another DEX. A revolutionary AMM with 130% capital efficiency through dynamic bonding curves that respond to risk variables, market changes, and trading patterns in real-time.",
+              title: "Token Creator & Launchpad",
+              description: "Forge your own coin with D4L's slick token creator—shape it, lock it, and launch it with swagger, or bring your existing token and validate it through our rock-solid system.",
               icon: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -103,8 +103,8 @@ export const Introduction = () => {
               color: "from-orange-500 to-red-500"
             },
             {
-              title: "AltCoin Launchpad",
-              description: "Launch your token with anti-scam guardrails built in. Set lockup schedules, enforce liquidity requirements, and build community trust from day one with our comprehensive security toolkit.",
+              title: "Token Verification Process",
+              description: "D4L's token verification is your ticket to a scam-free zone, using ironclad checks to shut down rug pulls and keeping projects legit. Build with confidence, play for the rush, and bank the wins.",
               icon: (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

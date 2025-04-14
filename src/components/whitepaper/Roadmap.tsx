@@ -6,7 +6,7 @@ export const Roadmap = () => {
       <h2 className="text-3xl font-bold mb-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
         Roadmap
       </h2>
-      
+
       <div className="relative mb-16 p-8 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl border border-white/10 backdrop-blur-sm">
         <div className="absolute -top-5 left-8 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-sm">
           Development Timeline
@@ -15,12 +15,12 @@ export const Roadmap = () => {
           Our roadmap outlines the strategic development and expansion of the D4L ecosystem, with a focus on building a robust platform that delivers value to all participants.
         </p>
       </div>
-      
+
       {/* Timeline */}
       <div className="relative">
         {/* Vertical line */}
         <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500"></div>
-        
+
         {/* Phase 1 */}
         <div className="relative mb-20">
           <div className="flex items-center justify-center mb-6">
@@ -28,7 +28,7 @@ export const Roadmap = () => {
               <span className="text-white font-bold">1</span>
             </div>
           </div>
-          
+
           <div className="md:grid md:grid-cols-2 gap-12">
             <div className="md:text-right mb-8 md:mb-0 md:pr-10">
               <h3 className="text-2xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
@@ -39,8 +39,7 @@ export const Roadmap = () => {
                 <ul className="space-y-3">
                   {[
                     "Launch D4L token and initial liquidity pools",
-                    "Deploy HydraCurve AMM with basic trading functionality",
-                    "Release AltCoin Launchpad MVP",
+                    "Release Token Creator & Launchpad MVP",
                     "Establish security protocols and complete initial audits",
                     "Form strategic partnerships for ecosystem growth"
                   ].map((item, index) => (
@@ -54,7 +53,7 @@ export const Roadmap = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="md:pl-10">
               <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                 <h4 className="text-xl font-bold mb-4 text-blue-300">Key Milestones</h4>
@@ -74,7 +73,7 @@ export const Roadmap = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Phase 2 */}
         <div className="relative mb-20">
           <div className="flex items-center justify-center mb-6">
@@ -82,7 +81,7 @@ export const Roadmap = () => {
               <span className="text-white font-bold">2</span>
             </div>
           </div>
-          
+
           <div className="md:grid md:grid-cols-2 gap-12">
             <div className="md:text-right mb-8 md:mb-0 md:pr-10">
               <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
@@ -101,7 +100,7 @@ export const Roadmap = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="md:pl-10">
               <h3 className="text-2xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">
                 Phase 2: Expansion
@@ -111,7 +110,6 @@ export const Roadmap = () => {
                 <ul className="space-y-3">
                   {[
                     "Launch BonkWars with first seasonal tournament",
-                    "Implement advanced trading features in HydraCurve AMM",
                     "Release prediction markets with Chainlink integration",
                     "Expand to additional blockchain networks",
                     "Introduce governance framework for community proposals"
@@ -128,7 +126,7 @@ export const Roadmap = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Phase 3 */}
         <div className="relative">
           <div className="flex items-center justify-center mb-6">
@@ -136,7 +134,7 @@ export const Roadmap = () => {
               <span className="text-white font-bold">3</span>
             </div>
           </div>
-          
+
           <div className="md:grid md:grid-cols-2 gap-12">
             <div className="md:text-right mb-8 md:mb-0 md:pr-10">
               <h3 className="text-2xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-red-400">
@@ -162,7 +160,7 @@ export const Roadmap = () => {
                 </ul>
               </div>
             </div>
-            
+
             <div className="md:pl-10">
               <div className="bg-gradient-to-br from-pink-900/20 to-red-900/20 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
                 <h4 className="text-xl font-bold mb-4 text-pink-300">Key Milestones</h4>

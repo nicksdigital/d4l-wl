@@ -13,11 +13,11 @@ import { ArrowRightIcon, CheckCircleIcon, GlobeAltIcon, UserGroupIcon, CurrencyD
 // ClientOnly wrapper component
 function ClientOnly({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   // Return null on first render to avoid SSR hydration issues
   return mounted ? <>{children}</> : null;
 }
@@ -36,7 +36,7 @@ export default function Home() {
 // Separate component for content that requires web3 data
 function HomeContent() {
   const { isConnected, contracts, chainId } = useWeb3();
-  
+
   // Use the cached data hook with content tagging for airdrop status
   const { data: airdropData, isLoading } = useCachedData(
     async () => {
@@ -111,14 +111,14 @@ function HomeContent() {
       registrationOpen: false,
     }
   };
-  
+
   // Extract the data for easier access in the component
   const airdropStatus = airdropData?.airdropStatus || {
     isActive: false,
     isPaused: true,
     startTime: 0,
   };
-  
+
   const registrationStats = airdropData?.registrationStats || {
     totalRegistered: 0,
     totalMinted: 0,
@@ -144,26 +144,26 @@ function HomeContent() {
       <section className="mb-16 relative overflow-hidden rounded-2xl shadow-2xl">
         {/* Enhanced hero image with better visibility */}
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/images/hero.jpeg" 
-            alt="Hero background" 
+          <Image
+            src="/images/hero.jpeg"
+            alt="Hero background"
             fill
             sizes="100vw"
             className="object-cover brightness-110 contrast-110"
             priority
           />
         </div>
-        
+
         {/* Subtle gradient overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/60 to-purple-600/60 z-0"></div>
-        
+
         {/* Animated grid pattern */}
         <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-30 z-0 animate-pulse-slow"></div>
-        
+
         {/* Glassmorphism light effects */}
         <div className="absolute top-0 left-0 w-1/3 h-1/3 bg-white/10 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-purple-500/20 blur-3xl rounded-full translate-x-1/4 translate-y-1/4"></div>
-        
+
         <div className="relative z-10 px-8 py-20 md:py-28 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0 p-6 md:p-8 backdrop-blur-sm bg-white/5 rounded-2xl border border-white/10 shadow-xl">
             <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-white leading-tight">
@@ -193,35 +193,35 @@ function HomeContent() {
               {/* Glassmorphism card effect */}
               <div className="absolute inset-0 backdrop-blur-xl bg-white/10 dark:bg-gray-900/20 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl transform rotate-6 scale-90 z-0"></div>
               <div className="absolute inset-0 backdrop-blur-xl bg-white/10 dark:bg-gray-900/20 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl transform -rotate-3 scale-95 z-0"></div>
-              
+
               {/* Enhanced layered shadows for 3D effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/40 to-purple-500/40 rounded-full animate-pulse"></div>
               <div className="absolute -right-4 -bottom-4 w-full h-full rounded-full bg-indigo-800/30 blur-md"></div>
               <div className="absolute left-6 top-6 w-full h-full rounded-full bg-blue-600/30 blur-xl"></div>
               <div className="absolute left-3 top-3 w-full h-full rounded-full bg-purple-600/30 blur-lg"></div>
               <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-700/20 blur-xl"></div>
-              
+
               {/* Glassmorphism ring */}
               <div className="absolute inset-2 rounded-full border-4 border-white/20 backdrop-blur-sm z-5"></div>
-              
+
               {/* Main token with enhanced 3D effects */}
               <div className="relative z-10 w-full h-full rounded-full overflow-hidden transform token-3d transition-all duration-500 hover:rotate-0 hover:scale-105 backdrop-blur-sm bg-white/5 border border-white/20">
                 {/* Inner glow and reflections */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent z-10 mix-blend-overlay"></div>
                 <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/30 via-transparent to-indigo-500/30 z-5"></div>
-                
+
                 {/* Token image */}
-                <Image 
-                  src="/logo.png" 
-                  alt="D4L Token" 
-                  width={500} 
+                <Image
+                  src="/logo.png"
+                  alt="D4L Token"
+                  width={500}
                   height={500}
                   className="w-full h-full object-contain drop-shadow-2xl"
                   priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-tl from-blue-500/20 to-purple-500/20 mix-blend-overlay"></div>
               </div>
-              
+
               {/* Floating particles */}
               <div className="absolute top-1/4 right-1/4 w-6 h-6 rounded-full bg-blue-400/50 blur-sm animate-float-particle-1"></div>
               <div className="absolute bottom-1/3 left-1/4 w-4 h-4 rounded-full bg-purple-400/50 blur-sm animate-float-particle-2"></div>
@@ -236,7 +236,7 @@ function HomeContent() {
         {/* Background effects */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
           {/* Airdrop Status */}
           <div className="card backdrop-blur-md bg-white/80 dark:bg-gray-800/70 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden border border-white/20 dark:border-white/10 hover:bg-white/90 dark:hover:bg-gray-800/80">
@@ -371,7 +371,7 @@ function HomeContent() {
         {/* Background effects */}
         <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-        
+
         <h2 className="text-3xl font-bold mb-10 text-center relative z-10">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
           <div className="card backdrop-blur-md bg-white/80 dark:bg-gray-800/70 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl overflow-hidden border border-white/20 transform hover:-translate-y-2 hover:bg-white/90 dark:hover:bg-gray-800/80">
@@ -436,9 +436,9 @@ function HomeContent() {
             <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full w-14 h-14 flex items-center justify-center mb-6">
               <GlobeAltIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-xl font-bold mb-3">HydraCurve DEX</h3>
+            <h3 className="text-xl font-bold mb-3">Token Creation Launchpad & Validation</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Experience revolutionary trading with our HydraCurve technology offering 130% capital efficiency, low slippage, and enhanced liquidity utilization.
+              Spin up your own token with D4L's creator tools—customize it, secure it, launch it. Our verification system sniffs out scams, anti-bot features, plus no rug pulls to ruin the party.
             </p>
           </div>
           <div className="backdrop-blur-md bg-white/90 dark:bg-gray-800/80 p-8 rounded-xl shadow-lg border border-gray-100/50 dark:border-gray-700/30 hover:shadow-xl transition-all duration-300">
@@ -467,13 +467,13 @@ function HomeContent() {
         {/* Background effects */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
-        
+
         <h2 className="text-3xl font-bold mb-10 text-center relative z-10">About D4L</h2>
         <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/70 dark:from-gray-800/70 dark:to-gray-900/70 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-white/10 relative z-10">
           {/* Glassmorphism effects */}
           <div className="absolute top-0 left-0 w-1/3 h-1/3 bg-blue-500/10 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-purple-500/10 blur-3xl rounded-full translate-x-1/4 translate-y-1/4"></div>
-          
+
           <div className="p-8 md:p-12 relative z-10">
             <div className="max-w-3xl mx-auto">
               <p className="text-lg mb-6 text-white/90">
@@ -512,7 +512,7 @@ function HomeContent() {
           <div className="absolute top-0 left-0 w-1/3 h-1/3 bg-white/10 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-purple-500/20 blur-3xl rounded-full translate-x-1/4 translate-y-1/4"></div>
           <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-30 animate-pulse-slow"></div>
-          
+
           <div className="px-8 py-12 md:py-16 text-center relative z-10 backdrop-blur-sm">
             <h2 className="text-3xl font-bold mb-4 text-white drop-shadow-glow">Join the D4L Movement</h2>
             <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
@@ -542,7 +542,7 @@ function HomeContent() {
         {/* Background effects */}
         <div className="absolute top-20 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 left-10 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-        
+
         <h2 className="text-3xl font-bold mb-10 text-center relative z-10">Ecosystem Highlights</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
           <div className="backdrop-blur-md bg-white/90 dark:bg-gray-800/80 p-8 rounded-xl shadow-lg border border-white/20 dark:border-gray-700/30 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -551,12 +551,12 @@ function HomeContent() {
                 <span className="text-white font-bold text-xl">DEX</span>
               </div>
               <div>
-                <h3 className="font-bold text-xl">HydraCurve Technology</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Revolutionary AMM Design</p>
+                <h3 className="font-bold text-xl">Token Creator & Launchpad</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Secure Token Creation</p>
               </div>
             </div>
             <p className="text-gray-700 dark:text-gray-300">
-              "Our proprietary HydraCurve AMM delivers 130% capital efficiency compared to traditional DEXes, with optimized slippage and enhanced liquidity utilization for all traders. Launching Q2 2025 with full security audits and formal verification."
+              "Forge your own coin with D4L's slick token creator—shape it, lock it, and launch it with swagger, or bring your existing token and validate it through our rock-solid system. Our battle-tested verification hunts down scams, shuts out bots, and buries rug pulls, keeping the vibe legit and the party electric for every trailblazer."
             </p>
           </div>
           <div className="backdrop-blur-md bg-white/90 dark:bg-gray-800/80 p-8 rounded-xl shadow-lg border border-white/20 dark:border-gray-700/30 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -582,7 +582,7 @@ function HomeContent() {
           {/* Glassmorphism effects */}
           <div className="absolute top-0 left-0 w-1/3 h-1/3 bg-blue-500/20 blur-3xl rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-purple-500/20 blur-3xl rounded-full translate-x-1/4 translate-y-1/4"></div>
-          
+
           <div className="px-8 py-12 text-center relative z-10">
             <div className="inline-block mb-6 p-3 bg-blue-500/20 backdrop-blur-md rounded-full">
               <CurrencyDollarIcon className="h-8 w-8 text-blue-300" />
