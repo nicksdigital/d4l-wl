@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --mercedes-silver: #adb5bd;
+  --mercedes-black: #0a0a0a;
+  --mercedes-blue: #0078d4;
+  --accent-gradient: linear-gradient(135deg, #0078d4, #00a2ff);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-white antialiased;
+    background-image: radial-gradient(circle at 50% 0%, rgba(0, 120, 212, 0.15), rgba(0, 0, 0, 0) 50%);
+  }
+
+  h1 {
+    @apply text-3xl font-bold mb-6;
+  }
+
+  h2 {
+    @apply text-2xl font-bold mb-4;
+  }
+
+  h3 {
+    @apply text-xl font-bold mb-3;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-gray-900/80 backdrop-blur-sm border border-gray-800/50 rounded-xl shadow-lg overflow-hidden;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm border border-gray-700/30 rounded-xl shadow-lg overflow-hidden;
+  }
+
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 flex items-center justify-center gap-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-md hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-800 hover:bg-gray-700 text-white border border-gray-700;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200;
+  }
+
+  .nav-item-active {
+    @apply nav-item bg-gradient-to-r from-blue-600/20 to-blue-500/10 text-blue-400 border-l-2 border-blue-500;
+  }
+
+  .nav-item-inactive {
+    @apply nav-item text-gray-400 hover:text-white hover:bg-gray-800/50;
+  }
+}
+
+/* Glassmorphism effects */
+.glass {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-xl;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 120, 212, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px 3px rgba(0, 120, 212, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite;
+}
