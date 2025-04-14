@@ -16,26 +16,8 @@ for file in $PAGE_FILES; do
     if grep -q "export const revalidate = [a-zA-Z0-9_]*\." "$file"; then
       echo "⚠️ Found dynamic revalidate in $file"
       
-      # Determine appropriate static value based on file path
-      if [[ "$file" == *"/claim/"* ]]; then
-        STATIC_VALUE=0
-        echo "  Setting to $STATIC_VALUE (no cache for user content)"
-      elif [[ "$file" == *"/rewards/"* ]]; then
-        STATIC_VALUE=0
-        echo "  Setting to $STATIC_VALUE (no cache for user content)"
-      elif [[ "$file" == *"/profile/"* ]]; then
-        STATIC_VALUE=0
-        echo "  Setting to $STATIC_VALUE (no cache for user content)"
-      elif [[ "$file" == *"/admin/"* ]]; then
-        STATIC_VALUE=60
-        echo "  Setting to $STATIC_VALUE (short cache for admin)"
-      elif [[ "$file" == *"/layout.tsx" ]]; then
-        STATIC_VALUE=3600
-        echo "  Setting to $STATIC_VALUE (1 hour for layout)"
-      else
-        STATIC_VALUE=60
-        echo "  Setting to $STATIC_VALUE (1 minute default)"
-      fi
+      # Set a static value
+      STATIC_VALUE=60
       
       # Create backup
       cp "$file" "${file}.bak"

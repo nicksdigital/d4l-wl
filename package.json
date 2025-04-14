@@ -18,6 +18,8 @@
     "kill-ports": "node scripts/kill-ports.js",
     "setup-https": "npm run generate-certs && npm run update-hosts",
     "build": "next build",
+    "build:frontend-only": "NODE_OPTIONS='--max-old-space-size=4096' next build --no-lint",
+    "build:decoupled": "node scripts/build-frontend-only.js",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",

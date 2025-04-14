@@ -18,71 +18,43 @@ experimental: {
     resolveAlias: {
       '@': './src',
     },
-    loaders: {
-      // Custom loaders if needed
-    },
   },
-},
+}
 ```
 
-## Current Limitations
+## Using Turbopack
 
-Turbopack is still in beta, so be aware of these limitations:
-
-1. Not all Webpack features are supported yet
-2. Some Next.js features might not work perfectly
-3. Some third-party libraries might have compatibility issues
-
-## Troubleshooting Common Issues
-
-If you encounter problems with Turbopack, try these solutions:
-
-### Module Resolution Issues
-
-If you see errors about modules not being found:
-
-1. Make sure your import paths are correct
-2. Check if the module is compatible with Turbopack
-3. Add the module to `resolveAlias` in the Turbopack config
-
-### CSS/SASS Loading Issues
-
-If styles aren't loading correctly:
-
-1. Use the `.module.css` or `.module.scss` naming convention
-2. Avoid complex CSS preprocessor configurations
-
-### API Routes Not Working
-
-If API routes aren't functioning:
-
-1. Restart the development server
-2. Make sure your API routes follow the Next.js conventions
-
-## Fallback to Webpack
-
-If you need to temporarily switch back to Webpack:
+To use Turbopack, run:
 
 ```bash
-npm run dev
-# Instead of
-npm run fast-dev
+npm run dev:turbo
 ```
 
-## Further Performance Improvements
+This will start the development server with Turbopack enabled.
 
-1. **Minimize CSS-in-JS**: Prefer CSS Modules or regular CSS files
-2. **Reduce dependencies**: Remove unused packages from your project
-3. **Use dynamic imports**: For large components or libraries
-4. **Optimize images**: Use the Next.js Image component
-5. **Smaller JavaScript bundles**: Use tree-shaking and code splitting
+## Benefits
 
-## Monitoring Performance
+- **Faster Development**: Turbopack's incremental computation engine only rebuilds what changed
+- **Optimized for Next.js**: Built specifically for Next.js applications
+- **Better Developer Experience**: Less waiting, more coding
 
-Check the startup logs to see the performance improvements with Turbopack:
+## Limitations
 
-```
-✓ Ready in X.X s
-```
+Turbopack is still in beta, so some features may not work as expected:
 
-If this number is significantly lower than before, Turbopack is working well!
+- Some webpack loaders may not be compatible
+- Some plugins may not work
+- HMR might occasionally fail for complex updates
+
+## Troubleshooting
+
+If you encounter issues with Turbopack:
+
+1. Try restarting the development server
+2. Check for compatibility issues with your dependencies
+3. Fall back to the standard webpack build with `npm run dev`
+
+## Learn More
+
+- [Turbopack Documentation](https://turbo.build/pack/docs)
+- [Next.js Turbopack Documentation](https://nextjs.org/docs/advanced-features/turbopack)

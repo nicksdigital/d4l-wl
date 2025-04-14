@@ -1,0 +1,7 @@
+# Ignore d4l_server and hydra_admin directories
+d4l_server/
+hydra_admin/
+
+# Ignore any temporary directories
+d4l_server_temp/
+hydra_admin_temp/
