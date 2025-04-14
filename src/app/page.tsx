@@ -483,16 +483,14 @@ function HomeContent() {
                 The D4L token is your key to this ecosystem: stake it for rewards, vote on governance, and unlock exclusive benefits. With a Q2 2025 presale starting with an innovative Dutch Auction, early participants will gain access to bonuses and an equal chance to shape the platform's evolution.
               </p>
               <div className="flex flex-wrap gap-4 mt-8">
-                <a
-                  href="https://docs.d4l.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/whitepaper"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 border border-white/10"
                 >
                   Read Whitepaper
-                </a>
+                </Link>
                 <a
-                  href="https://discord.gg/uW8gUT5r"
+                  href="https://discord.gg/d4l"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn backdrop-blur-md bg-[#5865F2]/90 border border-[#5865F2]/50 hover:bg-[#5865F2] text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
@@ -593,7 +591,7 @@ function HomeContent() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/token"
+                href="/whitepaper#tokenomics"
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl border border-white/20"
               >
                 View D4L Token

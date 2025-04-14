@@ -11,7 +11,7 @@ import Vision from '@/components/whitepaper/Vision';
 import Technology from '@/components/whitepaper/Technology';
 import Tokenomics from '@/components/whitepaper/Tokenomics';
 import Roadmap from '@/components/whitepaper/Roadmap';
-import Team from '@/components/whitepaper/Team';
+// Team section removed
 import Conclusion from '@/components/whitepaper/Conclusion';
 
 export default function WhitepaperPage() {
@@ -84,7 +84,7 @@ export default function WhitepaperPage() {
                 <Technology />
                 <Tokenomics />
                 <Roadmap />
-                <Team />
+                {/* Team section removed */}
                 <Conclusion />
 
                 {/* Mobile-friendly footer with additional whitespace */}

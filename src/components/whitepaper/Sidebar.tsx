@@ -16,7 +16,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, scrollToSection
     { id: 'technology', label: 'Technology' },
     { id: 'tokenomics', label: 'Tokenomics' },
     { id: 'roadmap', label: 'Roadmap' },
-    { id: 'team', label: 'Team' },
     { id: 'conclusion', label: 'Conclusion' }
   ];
 
