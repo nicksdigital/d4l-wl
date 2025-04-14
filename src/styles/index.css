@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+body {
+  @apply bg-gray-900 text-white;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Glass card effect */
+.glass-card {
+  @apply bg-gray-800/70 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 shadow-lg;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500;
+}
+
+/* Button styles */
+.btn {
+  @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90;
+}
+
+.btn-secondary {
+  @apply bg-gray-700 text-white hover:bg-gray-600;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+/* Form styles */
+.form-input {
+  @apply bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.form-label {
+  @apply block text-gray-300 mb-2 font-medium;
+}
+
+.form-error {
+  @apply text-red-500 text-sm mt-1;
+}
+
+/* Animation for background particles */
+.bg-particle {
+  @apply absolute rounded-full opacity-20 blur-xl;
+}
+
+.bg-particle-1 {
+  @apply bg-blue-500 w-64 h-64 animate-float-particle-1;
+}
+
+.bg-particle-2 {
+  @apply bg-purple-500 w-80 h-80 animate-float-particle-2;
+}
+
+.bg-particle-3 {
+  @apply bg-indigo-500 w-72 h-72 animate-float-particle-3;
+}

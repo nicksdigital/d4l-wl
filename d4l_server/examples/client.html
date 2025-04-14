@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D4L Auth Client Example</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      white-space: pre-wrap;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>D4L Auth Client Example</h1>
+  
+  <div class="container">
+    <div class="card">
+      <h2>Connect Wallet</h2>
+      <button id="connectWallet">Connect Wallet</button>
+      <div id="walletInfo" class="result"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Register</h2>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter email">
+      </div>
+      <button id="register">Register</button>
+      <div id="registerResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Login</h2>
+      <button id="login">Login</button>
+      <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Logout</h2>
+      <button id="logout">Logout</button>
+      <div id="logoutResult" class="result"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Get User Info</h2>
+      <button id="getUserInfo">Get User Info</button>
+      <div id="userInfoResult" class="result"></div>
+    </div>
+  </div>
+  
+  <script>
+    // API URL
+    const API_URL = 'http://localhost:3000/api';
+    
+    // State
+    let provider;
+    let signer;
+    let walletAddress;
+    let token;
+    let sessionId;
+    
+    // DOM Elements
+    const connectWalletBtn = document.getElementById('connectWallet');
+    const walletInfo = document.getElementById('walletInfo');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const registerBtn = document.getElementById('register');
+    const registerResult = document.getElementById('registerResult');
+    const loginBtn = document.getElementById('login');
+    const loginResult = document.getElementById('loginResult');
+    const logoutBtn = document.getElementById('logout');
+    const logoutResult = document.getElementById('logoutResult');
+    const getUserInfoBtn = document.getElementById('getUserInfo');
+    const userInfoResult = document.getElementById('userInfoResult');
+    
+    // Connect Wallet
+    connectWalletBtn.addEventListener('click', async () => {
+      try {
+        // Check if MetaMask is installed
+        if (!window.ethereum) {
+          throw new Error('MetaMask is not installed');
+        }
+        
+        // Connect to MetaMask
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send('eth_requestAccounts', []);
+        signer = provider.getSigner();
+        walletAddress = await signer.getAddress();
+        
+        walletInfo.textContent = `Connected: ${walletAddress}`;
+        
+        // Check if token exists in localStorage
+        token = localStorage.getItem('token');
+        if (token) {
+          loginResult.textContent = 'Already logged in with token from localStorage';
+        }
+      } catch (error) {
+        walletInfo.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    });
+    
+    // Register
+    registerBtn.addEventListener('click', async () => {
+      try {
+        if (!signer) {
+          throw new Error('Please connect your wallet first');
+        }
+        
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        
+        if (!username || !email) {
+          throw new Error('Username and email are required');
+        }
+        
+        // Get signing info from the server
+        const signingInfoResponse = await fetch(`${API_URL}/auth/signing-info`);
+        const signingInfoData = await signingInfoResponse.json();
+        
+        if (!signingInfoData.success) {
+          throw new Error(signingInfoData.error || 'Failed to get signing info');
+        }
+        
+        const { domain, deadline } = signingInfoData.data;
+        
+        // Sign registration data
+        const types = {
+          Registration: [
+            { name: 'wallet', type: 'address' },
+            { name: 'username', type: 'string' },
+            { name: 'email', type: 'string' },
+            { name: 'deadline', type: 'uint256' }
+          ]
+        };
+        
+        const data = {
+          wallet: walletAddress,
+          username,
+          email,
+          deadline
+        };
+        
+        const signature = await signer._signTypedData(domain, types, data);
+        
+        // Send registration request
+        const registerResponse = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username,
+            email,
+            deadline,
+            signature
+          })
+        });
+        
+        const registerData = await registerResponse.json();
+        
+        if (!registerData.success) {
+          throw new Error(registerData.error || 'Registration failed');
+        }
+        
+        registerResult.textContent = 'Registration successful!';
+      } catch (error) {
+        registerResult.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    });
+    
+    // Login
+    loginBtn.addEventListener('click', async () => {
+      try {
+        if (!signer) {
+          throw new Error('Please connect your wallet first');
+        }
+        
+        // Get signing info from the server
+        const signingInfoResponse = await fetch(`${API_URL}/auth/signing-info`);
+        const signingInfoData = await signingInfoResponse.json();
+        
+        if (!signingInfoData.success) {
+          throw new Error(signingInfoData.error || 'Failed to get signing info');
+        }
+        
+        const { domain, deadline } = signingInfoData.data;
+        
+        // Sign login data
+        const types = {
+          Login: [
+            { name: 'wallet', type: 'address' },
+            { name: 'deadline', type: 'uint256' }
+          ]
+        };
+        
+        const data = {
+          wallet: walletAddress,
+          deadline
+        };
+        
+        const signature = await signer._signTypedData(domain, types, data);
+        
+        // Send login request
+        const loginResponse = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            deadline,
+            signature
+          })
+        });
+        
+        const loginData = await loginResponse.json();
+        
+        if (!loginData.success) {
+          throw new Error(loginData.error || 'Login failed');
+        }
+        
+        // Store token and session ID
+        token = loginData.data.token;
+        sessionId = loginData.data.sessionId;
+        localStorage.setItem('token', token);
+        
+        loginResult.textContent = `Login successful!\nToken: ${token}\nSession ID: ${sessionId}`;
+      } catch (error) {
+        loginResult.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    });
+    
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        if (!token) {
+          throw new Error('Not logged in');
+        }
+        
+        if (!sessionId) {
+          throw new Error('No active session');
+        }
+        
+        // Send logout request
+        const logoutResponse = await fetch(`${API_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            sessionId
+          })
+        });
+        
+        const logoutData = await logoutResponse.json();
+        
+        if (!logoutData.success) {
+          throw new Error(logoutData.error || 'Logout failed');
+        }
+        
+        // Clear token and session ID
+        token = null;
+        sessionId = null;
+        localStorage.removeItem('token');
+        
+        logoutResult.textContent = 'Logout successful!';
+      } catch (error) {
+        logoutResult.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    });
+    
+    // Get User Info
+    getUserInfoBtn.addEventListener('click', async () => {
+      try {
+        if (!token) {
+          throw new Error('Not logged in');
+        }
+        
+        if (!walletAddress) {
+          throw new Error('Wallet not connected');
+        }
+        
+        // Send get user info request
+        const userInfoResponse = await fetch(`${API_URL}/auth/user/${walletAddress}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const userInfoData = await userInfoResponse.json();
+        
+        if (!userInfoData.success) {
+          throw new Error(userInfoData.error || 'Failed to get user info');
+        }
+        
+        userInfoResult.textContent = JSON.stringify(userInfoData.data, null, 2);
+      } catch (error) {
+        userInfoResult.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    });
+  </script>
+</body>
+</html>
