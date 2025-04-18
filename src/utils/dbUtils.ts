@@ -24,23 +24,29 @@ const configureSsl = () => {
     // Only import fs and path if we need to read the CA cert
     if (!fs) fs = require('fs');
     if (!path) path = require('path');
-    
+
     // Check if POSTGRES_SSL_MODE is set to 'disable'
     if (process.env.POSTGRES_SSL_MODE === 'disable') {
       console.log('SSL mode set to disable, not using SSL for Postgres');
       return false; // Return false to disable SSL
     }
-    
+
     // Check if POSTGRES_SSL_MODE is set to 'no-verify'
     if (process.env.POSTGRES_SSL_MODE === 'no-verify') {
       console.log('SSL mode set to no-verify, disabling certificate verification');
       return { rejectUnauthorized: false };
     }
-    
+
+    // If we're here and we have a self-signed certificate error, default to no-verify
+    if (process.env.POSTGRES_ALLOW_SELF_SIGNED === 'true') {
+      console.log('POSTGRES_ALLOW_SELF_SIGNED is true, disabling certificate verification');
+      return { rejectUnauthorized: false };
+    }
+
     // Determine the base directory for the CA certificate
     const baseDir = process.env.NODE_ENV === 'production' ? '/data/d4l/frontend' : process.cwd();
     const certPath = path.join(baseDir, 'certs', 'ca.crt');
-    
+
     // Check if CA certificate exists
     if (fs.existsSync(certPath)) {
       console.log(`Using CA certificate from ${certPath}`);
@@ -50,12 +56,12 @@ const configureSsl = () => {
       // Check for CA cert in environment variable
       if (process.env.POSTGRES_CA_CERT) {
         console.log('Using CA certificate from environment variable');
-        return { 
+        return {
           ca: process.env.POSTGRES_CA_CERT,
-          rejectUnauthorized: true 
+          rejectUnauthorized: true
         };
       }
-      
+
       console.log('CA certificate not found, disabling certificate verification');
       return { rejectUnauthorized: false };
     }
@@ -73,22 +79,22 @@ if (process.env.DB_HOST || process.env.DATABASE_URL) {
   try {
     const pg = require('pg');
     Pool = pg.Pool;
-    
+
     // Configure SSL options
     const sslConfig = configureSsl();
-    
+
     // Initialize PostgreSQL connection pool
     if (process.env.DATABASE_URL) {
       // Use connection string if available
       const poolConfig: any = {
         connectionString: process.env.DATABASE_URL,
       };
-      
+
       // Add SSL config if not disabled
       if (sslConfig !== false) {
         poolConfig.ssl = sslConfig;
       }
-      
+
       pool = new Pool(poolConfig);
     } else {
       // Use individual connection parameters
@@ -99,17 +105,17 @@ if (process.env.DB_HOST || process.env.DATABASE_URL) {
         port: parseInt(process.env.DB_PORT || '5432', 10),
         database: process.env.DB_NAME || 'defaultdb',
       };
-      
+
       // Add SSL config if not disabled
       if (sslConfig !== false) {
         poolConfig.ssl = sslConfig;
       }
-      
+
       pool = new Pool(poolConfig);
     }
-    
+
     console.log('PostgreSQL pool created with SSL:', sslConfig ? 'enabled' : 'disabled');
-    
+
     // Test the connection
     pool.query('SELECT NOW()', (err: any, res: any) => {
       if (err) {
@@ -119,7 +125,7 @@ if (process.env.DB_HOST || process.env.DATABASE_URL) {
         console.log('PostgreSQL connection successful, server time:', res.rows[0].now);
       }
     });
-    
+
     console.log('PostgreSQL connection initialized');
   } catch (error) {
     console.warn('Failed to initialize PostgreSQL connection:', error);
@@ -168,7 +174,7 @@ const withFallback = async <T>(operation: () => Promise<T>, fallback: () => T): 
     }
     return fallback();
   }
-  
+
   try {
     return await operation();
   } catch (error) {
@@ -187,12 +193,12 @@ export const db = {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        
+
         const query = `
           INSERT INTO airdrop_claims (
             address, amount, timestamp, tx_hash, status, merkle_proof, merkle_root
           ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-          ON CONFLICT (address) 
+          ON CONFLICT (address)
           DO UPDATE SET
             amount = $2,
             timestamp = $3,
@@ -201,7 +207,7 @@ export const db = {
             merkle_proof = $6,
             merkle_root = $7
         `;
-      
+
         await client.query(query, [
           claim.address.toLowerCase(),
           claim.amount,
@@ -211,7 +217,7 @@ export const db = {
           JSON.stringify(claim.merkleProof),
           claim.merkleRoot
         ]);
-        
+
         await client.query('COMMIT');
       } catch (error) {
         await client.query('ROLLBACK');
@@ -228,7 +234,7 @@ export const db = {
       };
     }
   },
-  
+
   /**
    * Get an airdrop claim from the database
    */
@@ -239,13 +245,13 @@ export const db = {
           SELECT * FROM airdrop_claims
           WHERE address = $1
         `;
-        
+
         const result = await pool.query(query, [address.toLowerCase()]);
-        
+
         if (result.rows.length === 0) {
           return null;
         }
-        
+
         const row = result.rows[0];
         return {
           address: row.address,
@@ -262,7 +268,7 @@ export const db = {
         // In-memory fallback
         const claim = inMemoryStorage.airdropClaims[address.toLowerCase()];
         if (!claim) return null;
-        
+
         // Ensure txHash is defined (convert optional to required)
         return {
           address: claim.address,
@@ -276,7 +282,7 @@ export const db = {
       }
     );
   },
-  
+
   /**
    * Get all pending airdrop claims
    */
@@ -288,9 +294,9 @@ export const db = {
           WHERE status = 'pending'
           ORDER BY timestamp ASC
         `;
-        
+
         const result = await pool.query(query);
-        
+
         return result.rows.map((row: Record<string, any>) => ({
           address: row.address,
           amount: row.amount,
@@ -308,7 +314,7 @@ export const db = {
       }
     );
   },
-  
+
   /**
    * Update airdrop claim status
    */
@@ -319,7 +325,7 @@ export const db = {
         SET status = $2, tx_hash = $3
         WHERE address = $1
       `;
-      
+
       await pool.query(query, [address.toLowerCase(), status, txHash || null]);
     } else {
       // In-memory fallback
@@ -332,7 +338,7 @@ export const db = {
       }
     }
   },
-  
+
   /**
    * Store profile data in the database
    */
@@ -341,12 +347,12 @@ export const db = {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        
+
         const query = `
           INSERT INTO profiles (
             address, token_id, base_amount, bonus_amount, claimed, claim_timestamp, metadata
           ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-          ON CONFLICT (address) 
+          ON CONFLICT (address)
           DO UPDATE SET
             token_id = $2,
             base_amount = $3,
@@ -355,7 +361,7 @@ export const db = {
             claim_timestamp = $6,
             metadata = $7
         `;
-        
+
         await client.query(query, [
           profile.address.toLowerCase(),
           profile.tokenId || null,
@@ -365,7 +371,7 @@ export const db = {
           profile.claimTimestamp || null,
           profile.metadata ? JSON.stringify(profile.metadata) : null
         ]);
-        
+
         await client.query('COMMIT');
       } catch (error) {
         await client.query('ROLLBACK');
@@ -379,7 +385,7 @@ export const db = {
       inMemoryStorage.profiles[profile.address.toLowerCase()] = profile;
     }
   },
-  
+
   /**
    * Get profile data from the database
    */
@@ -389,13 +395,13 @@ export const db = {
         SELECT * FROM profiles
         WHERE address = $1
       `;
-      
+
       const result = await pool.query(query, [address.toLowerCase()]);
-      
+
       if (result.rows.length === 0) {
         return null;
       }
-      
+
       const row = result.rows[0];
       return {
         address: row.address,
@@ -411,9 +417,9 @@ export const db = {
       return inMemoryStorage.profiles[address.toLowerCase()] || null;
     }
   },
-  
 
-  
+
+
   /**
    * Health check for the database connection
    */
@@ -439,11 +445,11 @@ export const initializeDatabase = async (): Promise<void> => {
     console.log('Using in-memory storage, no database initialization needed');
     return;
   }
-  
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
+
     // Create airdrop_claims table
     await client.query(`
       CREATE TABLE IF NOT EXISTS airdrop_claims (
@@ -458,7 +464,7 @@ export const initializeDatabase = async (): Promise<void> => {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `);
-    
+
     // Create profiles table
     await client.query(`
       CREATE TABLE IF NOT EXISTS profiles (
@@ -474,7 +480,7 @@ export const initializeDatabase = async (): Promise<void> => {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `);
-    
+
     // Create updated_at trigger function
     await client.query(`
       CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -485,7 +491,7 @@ export const initializeDatabase = async (): Promise<void> => {
       END;
       $$ LANGUAGE plpgsql
     `);
-    
+
     // Create triggers for updated_at
     await client.query(`
       DROP TRIGGER IF EXISTS update_airdrop_claims_updated_at ON airdrop_claims;
@@ -494,7 +500,7 @@ export const initializeDatabase = async (): Promise<void> => {
       FOR EACH ROW
       EXECUTE FUNCTION update_updated_at_column()
     `);
-    
+
     await client.query(`
       DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
       CREATE TRIGGER update_profiles_updated_at
@@ -502,7 +508,7 @@ export const initializeDatabase = async (): Promise<void> => {
       FOR EACH ROW
       EXECUTE FUNCTION update_updated_at_column()
     `);
-    
+
     await client.query('COMMIT');
     console.log('Database initialized successfully');
   } catch (error) {

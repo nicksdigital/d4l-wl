@@ -2,38 +2,51 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [deployer] = await hre.ethers.getSigners();
-  console.log("Deploying contracts with the account:", deployer.address);
+  console.log("Starting deployment...");
 
-  // Deploy the token implementation
+  // Get deployment accounts
+  const [deployer] = await hre.ethers.getSigners();
+  console.log(`Deploying contracts with the account: ${deployer.address}`);
+
+  // Deploy TokenImplementation
+  console.log("Deploying TokenImplementation...");
   const TokenImplementation = await hre.ethers.getContractFactory("TokenImplementation");
   const tokenImplementation = await TokenImplementation.deploy();
   await tokenImplementation.waitForDeployment();
-  console.log("TokenImplementation deployed to:", await tokenImplementation.getAddress());
+  const tokenImplementationAddress = await tokenImplementation.getAddress();
+  console.log(`TokenImplementation deployed to: ${tokenImplementationAddress}`);
 
-  // Deploy the token factory
+  // Deploy TokenFactory
+  console.log("Deploying TokenFactory...");
   const TokenFactory = await hre.ethers.getContractFactory("TokenFactory");
-  const tokenFactory = await TokenFactory.deploy(await tokenImplementation.getAddress());
+  const tokenFactory = await TokenFactory.deploy(tokenImplementationAddress);
   await tokenFactory.waitForDeployment();
-  console.log("TokenFactory deployed to:", await tokenFactory.getAddress());
+  const tokenFactoryAddress = await tokenFactory.getAddress();
+  console.log(`TokenFactory deployed to: ${tokenFactoryAddress}`);
 
-  // Deploy the token upgrader
-  const TokenUpgrader = await hre.ethers.getContractFactory("TokenUpgrader");
-  const tokenUpgrader = await TokenUpgrader.deploy();
-  await tokenUpgrader.waitForDeployment();
-  console.log("TokenUpgrader deployed to:", await tokenUpgrader.getAddress());
+  // Deploy RewardPoints contract
+  console.log("Deploying RewardPoints...");
+  const RewardPoints = await hre.ethers.getContractFactory("RewardPoints");
+  const rewardPoints = await RewardPoints.deploy();
+  await rewardPoints.waitForDeployment();
+  const rewardPointsAddress = await rewardPoints.getAddress();
+  console.log(`RewardPoints deployed to: ${rewardPointsAddress}`);
 
-  // Deploy the V2 implementation (for future upgrades)
-  const TokenImplementationV2 = await hre.ethers.getContractFactory("TokenImplementationV2");
-  const tokenImplementationV2 = await TokenImplementationV2.deploy();
-  await tokenImplementationV2.waitForDeployment();
-  console.log("TokenImplementationV2 deployed to:", await tokenImplementationV2.getAddress());
+  // Add TokenFactory as a rewarder
+  console.log("Setting up roles...");
+  const addRewarderTx = await rewardPoints.addRewarder(tokenFactoryAddress);
+  await addRewarderTx.wait();
+  console.log(`TokenFactory added as rewarder in RewardPoints contract`);
 
-  console.log("Deployment completed!");
+  console.log("Deployment complete!");
+  console.log({
+    tokenImplementation: tokenImplementationAddress,
+    tokenFactory: tokenFactoryAddress,
+    rewardPoints: rewardPointsAddress
+  });
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+// Execute the deployment
 main()
   .then(() => process.exit(0))
   .catch((error) => {

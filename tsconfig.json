@@ -43,7 +43,7 @@
     "coverage/**/*",
     "dist/**/*",
     ".next/**/*",
-    "solidity/**/*",
+    "soulstream_protocol/**/*",
     "d4l_server/**/*",
     "hydra_admin/**/*"
   ]

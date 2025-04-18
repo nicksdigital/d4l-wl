@@ -11,29 +11,38 @@ import {
 } from "@/utils/apiUtils";
 import { AirdropControllerABI } from '../../../../contracts/abi/AirdropControllerABI';
 
-// GET endpoint to retrieve airdrop claim status from database
-export async function GET(request: NextRequest) {
-  return handleGetStatus(request);
+/**
+ * GET endpoint to retrieve airdrop claim status from the database.
+ * @param request - Next.js API request object
+ * @returns NextResponse containing the claim status or an error
+ */
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  return handleGetAirdropStatus(request);
 }
 
-// Internal function to handle GET requests
-async function handleGetStatus(request: NextRequest) {
+/**
+ * Handles the logic for fetching airdrop claim status by address.
+ * Validates input and queries the database for claim information.
+ * @param request - Next.js API request object
+ * @returns NextResponse with claim data or error message
+ */
+async function handleGetAirdropStatus(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const address = searchParams.get("address");
-    
-    // Validate address
+    // Extract 'address' from query parameters
+    const address = request.nextUrl.searchParams.get("address");
+
+    // Validate Ethereum address
     if (!address || !isValidEthereumAddress(address)) {
       return createErrorResponse(
         ErrorCode.VALIDATION_ERROR,
-        "Valid address parameter is required"
+        "A valid Ethereum address is required as the 'address' parameter."
       );
     }
-    
-    // Get claim from database
+
+    // Retrieve airdrop claim from the database
     const claim = await db.getAirdropClaim(address);
-    
+
+    // If no claim found, return default response
     if (!claim) {
       return createSuccessResponse({
         address,
@@ -43,8 +52,8 @@ async function handleGetStatus(request: NextRequest) {
         timestamp: null
       });
     }
-    
-    // Return the data
+
+    // Return claim data if found
     return createSuccessResponse({
       address,
       hasClaim: true,

@@ -8,7 +8,7 @@ console.log(`  Host: ${process.env.DB_HOST}`);
 console.log(`  Port: ${process.env.DB_PORT}`);
 console.log(`  User: ${process.env.DB_USER}`);
 console.log(`  Database: ${process.env.DB_NAME}`);
-console.log(`  SSL Mode: ${process.env.DB_SSL_MODE}`);
+console.log(`  SSL Mode: ${process.env.POSTGRES_SSL_MODE}`);
 
 // Create a connection pool
 const pool = new Pool({
@@ -17,7 +17,9 @@ const pool = new Pool({
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || '5432', 10),
   database: process.env.DB_NAME,
-  ssl: process.env.DB_SSL_MODE === 'require' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.POSTGRES_SSL_MODE === 'no-verify' ? { rejectUnauthorized: false } :
+       process.env.POSTGRES_SSL_MODE === 'disable' ? false :
+       process.env.POSTGRES_SSL_MODE === 'require' ? { rejectUnauthorized: true } : false,
 });
 
 // Test the connection
@@ -26,14 +28,14 @@ async function testConnection() {
     console.log('Attempting to connect to the database...');
     const client = await pool.connect();
     console.log('Connection successful!');
-    
+
     // Test a simple query
     const result = await client.query('SELECT NOW() as current_time');
     console.log(`Current database time: ${result.rows[0].current_time}`);
-    
+
     // Release the client
     client.release();
-    
+
     // Close the pool
     await pool.end();
     console.log('Connection closed.');

@@ -75,16 +75,8 @@ export default function Header() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-            )
-          },
-          {
-            title: "Claim",
-            path: "/claim",
-            icon: (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            )
+            ),
+            visible: isConnected
           },
           {
             title: "Rewards",
@@ -93,16 +85,17 @@ export default function Header() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-            )
+            ),
+            visible: isConnected
           }
         ]
       },
       {
-        title: "Launch Token",
-        path: "/launch-token",
+        title: "Create Token",
+        path: "/create-token",
         icon: (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         )
       },
@@ -175,7 +168,9 @@ export default function Header() {
                     {isAirdropOpen && (
                       <div className="absolute left-0 mt-1 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
                         <div className="py-1">
-                          {link.dropdown.map((item) => (
+                          {link.dropdown
+                          .filter(item => item.visible === undefined || item.visible)
+                          .map((item) => (
                             <Link
                               key={item.path}
                               href={item.path}
@@ -276,24 +271,26 @@ export default function Header() {
                       {/* Dropdown items */}
                       {isAirdropOpen && (
                         <div className="pl-4 mt-1 space-y-1">
-                          {link.dropdown.map((item) => (
-                            <Link
-                              key={item.path}
-                              href={item.path}
-                              className={`flex items-center px-4 py-2 rounded-lg ${
-                                pathname === item.path
-                                  ? "text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30"
-                                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700/50"
-                              }`}
-                              onClick={() => {
-                                setIsAirdropOpen(false);
-                                setIsMenuOpen(false);
-                              }}
-                            >
-                              {item.icon}
-                              {item.title}
-                            </Link>
-                          ))}
+                          {link.dropdown
+                            .filter(item => item.visible === undefined || item.visible)
+                            .map((item) => (
+                              <Link
+                                key={item.path}
+                                href={item.path}
+                                className={`flex items-center px-4 py-2 rounded-lg ${
+                                  pathname === item.path
+                                    ? "text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700/50"
+                                }`}
+                                onClick={() => {
+                                  setIsAirdropOpen(false);
+                                  setIsMenuOpen(false);
+                                }}
+                              >
+                                {item.icon}
+                                {item.title}
+                              </Link>
+                            ))}
                         </div>
                       )}
                     </>

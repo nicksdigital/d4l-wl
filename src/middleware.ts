@@ -1,70 +1,51 @@
-import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  // Add request headers for better error handling
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-request-id', crypto.randomUUID());
+const PUBLIC_FILE = /\.(.*)$/;
+const AUTH_COOKIE = 'd4l-auth-token';
+const API_RPC_ROUTE = '/api/rpc';
 
-  // Handle preflight requests
-  if (request.method === 'OPTIONS') {
-    return new NextResponse(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Max-Age': '86400',
-      },
-    });
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Ignore requests for public files
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.startsWith('/api/auth') ||
+    PUBLIC_FILE.test(pathname)
+  ) {
+    return NextResponse.next();
   }
 
-  // Skip auth check for authentication endpoints
-  if (request.nextUrl.pathname.startsWith('/api/auth')) {
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  }
-
-  // Only apply to API routes that should be protected
-  if (request.nextUrl.pathname.startsWith('/api/protected')) {
-    try {
-      const token = await getToken({ req: request });
-
-      if (!token) {
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 401 }
-        );
-      }
-    } catch (error) {
-      console.error('Auth error:', error);
-      return NextResponse.json(
-        { error: 'Authentication service unavailable' },
-        { status: 503 }
+  // Check if it's an API RPC request
+  if (pathname === API_RPC_ROUTE) {
+    // Check if the auth token exists in cookies or Authorization header
+    const token = req.cookies.get(AUTH_COOKIE) || req.headers.get('Authorization');
+    
+    if (!token) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Authentication required' }),
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
     }
   }
 
-  // Continue with modified request
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return NextResponse.next();
 }
 
-// Configure which paths should be processed by this middleware
 export const config = {
   matcher: [
-    // Protected API routes that require authentication
-    '/api/protected/:path*',
-    // All API routes
-    '/api/:path*',
-    // Skip Next.js system routes and static assets
-    '/((?!_next/static|_next/image|favicon.ico|images|fonts).*)',
+    /*
+     * Match all request paths except:
+     * 1. _next/static (static files)
+     * 2. _next/image (image optimization files)
+     * 3. favicon.ico, manifest.json (browsers files)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json).*)',
   ],
 };

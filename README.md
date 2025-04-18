@@ -1,90 +1,154 @@
-# D4L Airdrop Frontend
+# D4L DeFi Platform
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app) for the D4L token airdrop. The application features a modern glassmorphism design with animated transitions and a sophisticated Redis caching system.
+## Overview
 
-## Environment Variables
+This is a DeFi platform with the following features:
+- Wallet connection
+- Token creation
+- User profile system
+- Reward points for airdrop eligibility
 
-Create a `.env.local` file in the root directory with the following variables:
+## Project Structure
 
 ```
-# Reown AppKit Project ID (required)
-PROJECT_ID=your_reown_project_id
-
-# RPC URLs
-NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL=https://base-sepolia.g.alchemy.com/v2/your_api_key
-NEXT_PUBLIC_BASE_MAINNET_RPC_URL=https://base-mainnet.g.alchemy.com/v2/your_api_key
-
-# Contract Addresses
-NEXT_PUBLIC_TOKEN_ADDRESS=0x58fC2712D6f7ebD02a3A1d777827f4C10aC63b26
-NEXT_PUBLIC_VAULT_ADDRESS=0xaaDfc70b93E4ED2Eba3da19e51FE25C41411fdb3
-NEXT_PUBLIC_MERKLE_DISTRIBUTOR_ADDRESS=0x4726Ad8E817bf21A334497AD171766bcB493E18C
-NEXT_PUBLIC_ADMIN_ADDRESS=0xDe43d4FaAC1e6F0d6484215dfEEA1270a5A3A9be
-
-# Merkle Root
-NEXT_PUBLIC_MERKLE_ROOT=0x8a29648bed032bf77f4ab0da8b6f9599f3c5b1726bb5169767ee9165f7cf7b50
-
-# Default Claim Amount (200 tokens with 18 decimals)
-NEXT_PUBLIC_DEFAULT_CLAIM_AMOUNT=200000000000000000000
+d4l-wl2/
+├── abis/                 # JSON ABI files for contract interaction
+├── contracts/            # Smart contract source code
+│   ├── TokenFactory.sol  # Contract for creating new tokens
+│   ├── TokenImplementation.sol  # Base token implementation
+│   ├── RewardPoints.sol  # Contract for managing reward points
+│   └── ...
+├── public/               # Static assets
+├── scripts/              # Deployment and testing scripts
+├── src/                  # Frontend source code
+│   ├── app/              # Next.js app directory
+│   │   ├── create-token/ # Token creation page
+│   │   ├── profile/      # User profile page
+│   │   ├── rewards/      # Rewards page
+│   │   └── ...
+│   ├── components/       # React components
+│   ├── hooks/            # Custom React hooks
+│   └── ...
+└── test/                 # Contract test files
 ```
+
+## Features
+
+### 1. Wallet Connection
+- Seamless wallet connection using Reown AppKit
+- Network switching support
+- Account information display
+
+### 2. Token Creation
+- Create ERC-20 tokens with custom parameters:
+  - Name
+  - Symbol
+  - Description
+  - Initial supply
+  - Decimals
+  - Token image
+- Earn reward points for creating tokens
+
+### 3. User Profile
+- View wallet address and profile information
+- Only visible when connected to a wallet
+- Display token balance and other statistics
+
+### 4. Rewards System
+- Earn points through various activities
+- Points increase airdrop allocation
+- View total points and rewards in the Rewards page
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js (v16+)
+- Yarn or npm
+- MetaMask or other web3 wallet
 
-```bash
-npm run dev
-# or
+### Installation
+
+1. Clone the repository:
+```
+git clone https://github.com/yourusername/d4l-wl2.git
+cd d4l-wl2
+```
+
+2. Install dependencies:
+```
+yarn install
+```
+
+3. Set up environment variables:
+```
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration.
+
+### Running the Development Server
+
+1. Start the local Hardhat node:
+```
+npx hardhat node
+```
+
+2. Deploy contracts to the local network:
+```
+npx hardhat run scripts/run-local.js --network localhost
+```
+
+3. Start the Next.js development server:
+```
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Redis Caching System
-
-This application implements a sophisticated Redis-based caching system to optimize performance and user experience. Key features include:
-
-- Content-based tagging for granular cache invalidation
-- User-specific and dynamic content caching strategies
-- Admin dashboard for cache management
-- Automatic cache invalidation for admin routes
-
-For detailed documentation, see the following files:
-
-- [Caching Documentation](./docs/CACHING.md) - Overview of the caching architecture
-- [Redis Configuration](./docs/REDIS_CONFIGURATION.md) - Guide for secure Redis setup
-- [Admin Cache Management](./docs/ADMIN_CACHE_MANAGEMENT.md) - How to use the admin cache tools
-
-## Redis Configuration
-
-Add these Redis-specific environment variables to your `.env.local` file:
+### Running Tests
 
 ```
-REDIS_URL=redis://127.0.0.1:6379
-REDIS_PASSWORD=your_secure_redis_password
-REDIS_DATABASE=0
-REDIS_PREFIX=d4l:
-REDIS_DEBUG=false
+npx hardhat test
 ```
 
-## Learn More
+## Smart Contracts
 
-To learn more about Next.js, take a look at the following resources:
+### TokenFactory
+This contract allows users to create new ERC-20 tokens with customizable parameters. Each token is deployed as a proxy pointing to the implementation contract, allowing for future upgrades.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### TokenImplementation
+The base ERC-20 implementation that all created tokens use. Includes standard ERC-20 functionality plus mint and burn capabilities.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### RewardPoints
+Manages the reward points system for the platform. Users earn points by creating tokens and performing other actions, which increase their eligibility for the airdrop.
 
-## Deploy on Vercel
+## Hardhat Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project uses Hardhat for local development and testing. The configuration is in `hardhat.config.js` and includes:
+- Local network setup
+- Compiler settings
+- Test configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Frontend
+
+### Pages
+- Home: Platform introduction and overview
+- Create Token: Interface for creating new tokens
+- Profile: User profile information (only visible when connected)
+- Rewards: View and earn reward points (only visible when connected)
+- Whitepaper: Platform documentation
+
+### Components
+- Header: Navigation and wallet connection
+- WalletButton: Connect wallet button with dropdown
+- TokenForm: Form for creating new tokens
+- UserProfile: Profile information display
+
+## Notes
+
+- The profile and rewards pages are only visible when a wallet is connected
+- Creating a token awards random points between 50-500
+- All transactions are performed on the Hardhat network for local testing
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
